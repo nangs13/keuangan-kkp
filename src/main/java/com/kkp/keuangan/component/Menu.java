@@ -34,7 +34,7 @@ public class Menu extends javax.swing.JPanel {
 
         listMenu1.addItem(new Model_Menu("", "Mater Data", Model_Menu.MenuType.TITLE));
         listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
-                listMenu1.addItem(new Model_Menu("2", "COA", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("2", "COA", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("2", "Info Kartu", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("2", "Pelanggan", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("2", "Supplier", Model_Menu.MenuType.MENU));
@@ -45,11 +45,12 @@ public class Menu extends javax.swing.JPanel {
         listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
         listMenu1.addItem(new Model_Menu("3", "Penjualan", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("4", "Pembelian", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("5", "Stok Opnam", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("5", "Biaya", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("6", "Mutasi Kas", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
 
         listMenu1.addItem(new Model_Menu("", "Laporan", Model_Menu.MenuType.TITLE));
-        listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
+        listMenu1.addItem(new Model_Menu("6", "Kas", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("6", "Neraca", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("7", "Laba Rugi", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("8", "Arus Kas", Model_Menu.MenuType.MENU));

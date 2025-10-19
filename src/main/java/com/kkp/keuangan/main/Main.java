@@ -75,15 +75,21 @@ public class Main extends javax.swing.JFrame {
                     // Transaksi - Pembelian
                     setForm(form3);
                 } else if (index == 14) {
-                    // Transaksi - Stok Opnam
+                    // Transaksi - Biaya
                     setForm(form3);
-                } else if (index == 18) {
+                } else if (index == 15) {
+                    // Transaksi - Mutasi Kas
+                    setForm(form3);
+                } else if (index == 19) {
+                    // Laporan - Kas
+                    setForm(form3);
+                }  else if (index == 20) {
                     // Laporan - Neraca
                     setForm(form3);
                 } else if (index == 21) {
                     // Laporan - Laba Rugi
                     setForm(form3);
-                } else if (index == 24) {
+                } else if (index == 22) {
                     // Laporan - Arus Kas
                     setForm(form3);
                 }

@@ -40,6 +40,16 @@ public class RTextFieldUI extends BasicTextFieldUI {
                 c.repaint();
             }
         });
+        c.addPropertyChangeListener("editable", evt -> {
+            if (c.isEditable()) {
+                c.setForeground(RDefaultUI.FORGROUND);
+                c.setBackground(Color.WHITE);
+            } else {
+                c.setForeground(Color.GRAY);
+                c.setBackground(new Color(230, 230, 230));
+            }
+            c.repaint();
+        });
         rShadowRender = new RShadowRender(c);
         c.setOpaque(false);
         c.setBackground(Color.WHITE);

@@ -11,6 +11,8 @@ import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
 import com.kkp.keuangan.form.FormProduk;
+import com.kkp.keuangan.form.FormCoa;
+import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormPenjualan;
 import java.awt.Color;
 import javax.swing.JComponent;
@@ -29,6 +31,8 @@ public class Main extends javax.swing.JFrame {
     private Form_2 form2;
     private Form_3 form3;
     private FormProduk formProduk;
+    private FormCoa formCoa;
+    private FormCardInfo formCardInfo;
     private FormPenjualan formPenjualan;
 
     public Main() {
@@ -39,6 +43,8 @@ public class Main extends javax.swing.JFrame {
         form2 = new Form_2();
         form3 = new Form_3();
         formProduk = new FormProduk();
+        formCoa = new FormCoa();
+        formCardInfo = new FormCardInfo();
         formPenjualan = new FormPenjualan();
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
@@ -48,24 +54,36 @@ public class Main extends javax.swing.JFrame {
                     // Dashboard
                     setForm(home);
                 } else if (index == 4) {
+                    // Master Data - COA
+                    setForm(formCoa);
+                } else if (index == 5) {
+                    // Master Data - Card Info
+                    setForm(formCardInfo);
+                } else if (index == 6) {
+                    // Master Data - Customer
+                    setForm(form3);
+                } else if (index == 7) {
+                    // Master Data - Supplier
+                    setForm(form3);
+                } else if (index == 8) {
                     // Master Data - Produk
                     setForm(formProduk);
-                } else if (index == 8) {
+                } else if (index == 12) {
                     // Transaksi - Penjualan
                     setForm(formPenjualan);
-                } else if (index == 9) {
+                } else if (index == 13) {
                     // Transaksi - Pembelian
                     setForm(form3);
-                } else if (index == 10) {
+                } else if (index == 14) {
                     // Transaksi - Stok Opnam
                     setForm(form3);
-                } else if (index == 14) {
+                } else if (index == 18) {
                     // Laporan - Neraca
                     setForm(form3);
-                } else if (index == 15) {
+                } else if (index == 21) {
                     // Laporan - Laba Rugi
                     setForm(form3);
-                } else if (index == 16) {
+                } else if (index == 24) {
                     // Laporan - Arus Kas
                     setForm(form3);
                 }

@@ -99,4 +99,8 @@ public class SupplierDAO {
             throw new RuntimeException(e);
         }
     }
+
+    public List<ModelSupplier> findByName(String nama) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

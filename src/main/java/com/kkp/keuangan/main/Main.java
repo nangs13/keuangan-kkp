@@ -14,6 +14,7 @@ import com.kkp.keuangan.form.FormProduk;
 import com.kkp.keuangan.form.FormCoa;
 import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormPenjualan;
+import com.kkp.keuangan.form.FormSupplier;
 import java.awt.Color;
 import javax.swing.JComponent;
 
@@ -34,6 +35,8 @@ public class Main extends javax.swing.JFrame {
     private FormCoa formCoa;
     private FormCardInfo formCardInfo;
     private FormPenjualan formPenjualan;
+    private FormSupplier formSupplier;
+
 
     public Main() {
         initComponents();
@@ -46,6 +49,7 @@ public class Main extends javax.swing.JFrame {
         formCoa = new FormCoa();
         formCardInfo = new FormCardInfo();
         formPenjualan = new FormPenjualan();
+        formSupplier = new FormSupplier();
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override
@@ -64,7 +68,7 @@ public class Main extends javax.swing.JFrame {
                     setForm(form3);
                 } else if (index == 7) {
                     // Master Data - Supplier
-                    setForm(form3);
+                    setForm(formSupplier);
                 } else if (index == 8) {
                     // Master Data - Produk
                     setForm(formProduk);

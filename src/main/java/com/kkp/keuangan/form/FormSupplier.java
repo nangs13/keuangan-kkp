@@ -217,6 +217,7 @@ public class FormSupplier extends javax.swing.JPanel {
         kosongkanForm();
         JOptionPane.showMessageDialog(this, "Data supplier berhasil disimpan!");
     }
+    
 
     private void btnUbahActionPerformed(java.awt.event.ActionEvent evt) {
         if (txtId.getText().isEmpty()) {

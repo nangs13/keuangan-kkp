@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gantt chart</title>
+    <style>
+      body {
+        background: var(--highcharts-background-color);
+        color: var(--highcharts-neutral-color-100);
+      }
+      #container {
+        margin: 1em auto;
+      }
+
+      .highcharts-label-icon {
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://code.highcharts.com/gantt/highcharts-gantt.js"></script>
+    <script src="https://code.highcharts.com/gantt/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/gantt/modules/pattern-fill.js"></script>
+    <script src="https://code.highcharts.com/gantt/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/themes/adaptive.js"></script>
+
+    <div id="container"></div>
+
+    <script>
+      const day = 24 * 36e5,
+        today = Math.floor(Date.UTC(2025, 9, 18) / day) * day;
+
+      const options = {
+        chart: {
+          plotBackgroundColor: "rgba(128,128,128,0.02)",
+          plotBorderColor: "rgba(128,128,128,0.1)",
+          plotBorderWidth: 1,
+        },
+
+        plotOptions: {
+          series: {
+            borderRadius: "50%",
+            connectors: {
+              dashStyle: "ShortDot",
+              lineWidth: 2,
+              radius: 5,
+              startMarker: {
+                enabled: false,
+              },
+            },
+            groupPadding: 0,
+            dataLabels: [
+              {
+                enabled: true,
+                align: "left",
+                format: "{point.name}{#if point.owner} - {/if}{point.owner}",
+                // format: "{point.name}",
+                padding: 10,
+                style: {
+                  fontWeight: "normal",
+                  textOutline: "none",
+                },
+              },
+              {
+                enabled: true,
+                align: "right",
+                format:
+                  "{#if point.completed}{(multiply " +
+                  "point.completed.amount 100):.0f}%{/if}",
+                padding: 10,
+                style: {
+                  fontWeight: "normal",
+                  textOutline: "none",
+                  opacity: 0.6,
+                },
+              },
+            ],
+          },
+        },
+
+        series: [
+          {
+            name: "Dokumentasi",
+            data: [
+              {
+                name: "Dokumentasi",
+                id: "documentation",
+              },
+              {
+                name: "Pengajuan Judul",
+                parent: "documentation",
+                start: today - 14 * day,
+                end: today,
+                owner: 'all'
+              },
+              {
+                name: "Bab 1",
+                parent: "documentation",
+                start: today,
+                end: today + 7 * day,
+                owner: 'sidik'
+              },
+              {
+                name: "Bab 2",
+                parent: "documentation",
+                start: today + 8 * day,
+                end: today + 14 * day,
+                owner: 'andhika'
+              },
+              {
+                name: "Bab 3",
+                parent: "documentation",
+                start: today + 15 * day,
+                end: today + 22 * day,
+                owner: 'irfan'
+              },
+              {
+                name: "Bab 4",
+                parent: "documentation",
+                dependency: "development",
+                start: today,
+                end: today + 30 * day,
+              },
+              {
+                name: "Bab 5",
+                parent: "documentation",
+                start: today + 31 * day,
+                end: today + 36 * day,
+                owner: 'irfan'
+              },
+            ],
+          },
+          {
+            name: "Development",
+            data: [
+              {
+                name: "Development",
+                id: "development",
+                owner: "Danang",
+              },
+              {
+                name: "Dashboard",
+                id: "dashboard",
+                parent: "development",
+                start: today + 15 * day,
+                end: today + 20 * day,
+                owner: "Danang",
+              },
+              {
+                name: "Master Data",
+                id: "md",
+                parent: "development",
+              },
+              {
+                name: "COA",
+                id: "md-coa",
+                parent: "md",
+                start: today,
+                end: today + 10 * day,
+                owner: "Danang",
+              },
+              {
+                name: "Produk",
+                id: "md-produk",
+                parent: "md",
+                start: today,
+                end: today + 7 * day,
+                owner: "Danang",
+              },
+              {
+                name: "Card Info",
+                id: "md-cardinfo",
+                parent: "md",
+                start: today,
+                end: today + 7 * day,
+                owner: "Danang",
+              },
+              {
+                name: "Customer",
+                id: "md-customer",
+                parent: "md",
+                start: today,
+                end: today + 8 * day,
+                owner: "Romi",
+              },
+              {
+                name: "Supplier",
+                id: "md-supplier",
+                parent: "md",
+                start: today,
+                end: today + 8 * day,
+                owner: "andhika",
+              },
+              // Modul Penjualan
+              {
+                name: "Transaksi",
+                id: "transaksi",
+                parent: "development",
+              },
+              {
+                name: "Penjualan",
+                id: "tr-penjualan", 
+                parent: "transaksi",
+                start: today + 8 * day,
+                end: today + 15 * day,
+                owner: "Danang",
+              },
+              {
+                name: "Pembelian",
+                id: "tr-pembelian",
+                parent: "transaksi",
+                start: today + 8 * day,
+                end: today + 15 * day,
+                owner: "Andhika",
+              },
+              {
+                name: "Mutasi Kas",
+                id: "tr-mutasikas",
+                parent: "transaksi",
+                start: today + 8 * day,
+                end: today + 15 * day,
+                owner: "Sidik",
+              },
+              {
+                name: "Biaya",
+                id: "tr-biaya",
+                parent: "transaksi",
+                start: today + 8 * day,
+                end: today + 15 * day,
+                owner: "Zia",
+              },
+              // Laporan
+              {
+                name: "Laporan",
+                id: "laporan",
+                parent: 'development',
+              },
+              {
+                name: "Kas",
+                id: "lr-kas",
+                parent: "laporan",
+                start: today + 16 * day,
+                end: today + 23 * day,
+                owner: "Romi",
+              },
+              {
+                name: "Arus Kas",
+                id: "lr-aruskas",
+                parent: "laporan",
+                start: today + 16 * day,
+                end: today + 30 * day,
+                owner: "Danang",
+              },
+              {
+                name: "Laba Rugi",
+                id: "lr-labarugi",
+                parent: "laporan",
+                start: today + 16 * day,
+                end: today + 30 * day,
+                owner: "Sidik",
+              },
+              {
+                name: "Neraca",
+                id: "lr-neraca",
+                parent: "laporan",
+                start: today + 16 * day,
+                end: today + 30 * day,
+                owner: "zia",
+              },
+            ],
+          },
+        ],
+        tooltip: {
+          pointFormat:
+            '<span style="font-weight: bold">{point.name}</span><br>' +
+            "{point.start:%e %b}" +
+            "{#unless point.milestone} → {point.end:%e %b}{/unless}" +
+            "<br>" +
+            "{#if point.completed}" +
+            "Completed: {multiply point.completed.amount 100}%<br>" +
+            "{/if}" +
+            "Owner: {#if point.owner}{point.owner}{else}unassigned{/if}",
+        },
+        title: {
+          text: "Gantt Projek KKP (Kedai Budhe)",
+        },
+        xAxis: [
+          {
+            type: 'datetime',
+            currentDateIndicator: {
+              color: "#2caffe",
+              dashStyle: "ShortDot",
+              width: 2,
+              label: {
+                format: "",
+              },
+            },
+            dateTimeLabelFormats: {
+              day: '%e<br><span style="opacity: 0.5; font-size: 0.7em">%a</span>',
+            },
+            grid: {
+              borderWidth: 0,
+            },
+            gridLineWidth: 1,
+            // min: Date.UTC(2025, 8, 21),
+            // max: Date.UTC(2025, 11, 31),
+            custom: {
+              today,
+              weekendPlotBands: true,
+            },
+          },
+          {
+            type: 'datetime',
+            linkedTo: 0,
+            dateTimeLabelFormats: {
+                month: '%b %Y' // Contoh: 'Okt 2025'
+            },
+            tickInterval: 30 * 24 * 3600 * 1000,
+          },
+        ],
+        yAxis: {
+          grid: {
+            borderWidth: 0,
+          },
+          gridLineWidth: 0,
+          labels: {
+            symbol: {
+              width: 8,
+              height: 6,
+              x: -4,
+              y: -2,
+            },
+          },
+          staticScale: 30,
+        },
+        exporting: {
+            sourceWidth: 1600,
+            scale: 2,
+        },
+        accessibility: {
+          keyboardNavigation: {
+            seriesNavigation: {
+              mode: "serialize",
+            },
+          },
+          point: {
+            descriptionFormatter: function (point) {
+              const completedValue = point.completed
+                  ? point.completed.amount || point.completed
+                  : null,
+                completed = completedValue
+                  ? " Task " +
+                    Math.round(completedValue * 1000) / 10 +
+                    "% completed."
+                  : "",
+                dependency =
+                  point.dependency &&
+                  point.series.chart.get(point.dependency).name,
+                dependsOn = dependency ? " Depends on " + dependency + "." : "";
+
+              return Highcharts.format(
+                point.milestone
+                  ? "{point.yCategory}. Milestone at {point.x:%Y-%m-%d}. " +
+                      "Owner: {point.owner}.{dependsOn}"
+                  : "{point.yCategory}.{completed} Start " +
+                      "{point.x:%Y-%m-%d}, end {point.x2:%Y-%m-%d}. Owner: " +
+                      "{point.owner}.{dependsOn}",
+                { point, completed, dependsOn }
+              );
+            },
+          },
+        },
+        lang: {
+          accessibility: {
+            axis: {
+              xAxisDescriptionPlural:
+                "The chart has a two-part X axis " +
+                "showing time in both week numbers and days.",
+            },
+          },
+        },
+      };
+
+      // Plug-in to render plot bands for the weekends
+      Highcharts.addEvent(Highcharts.Axis, "foundExtremes", (e) => {
+        if (
+          e.target.options.custom &&
+          e.target.options.custom.weekendPlotBands
+        ) {
+          const axis = e.target,
+            chart = axis.chart,
+            day = 24 * 36e5,
+            isWeekend = (t) => /[06]/.test(chart.time.dateFormat("%w", t)),
+            plotBands = [];
+
+          let inWeekend = false;
+
+          for (
+            let x = Math.floor(axis.min / day) * day;
+            x <= Math.ceil(axis.max / day) * day;
+            x += day
+          ) {
+            const last = plotBands.at(-1);
+            if (isWeekend(x) && !inWeekend) {
+              plotBands.push({
+                from: x,
+                color: {
+                  pattern: {
+                    path: "M 0 10 L 10 0 M -1 1 L 1 -1 M 9 11 L 11 9",
+                    width: 10,
+                    height: 10,
+                    color: "rgba(128,128,128,0.15)",
+                  },
+                },
+              });
+              inWeekend = true;
+            }
+
+            if (!isWeekend(x) && inWeekend && last) {
+              last.to = x;
+              inWeekend = false;
+            }
+          }
+          axis.options.plotBands = plotBands;
+        }
+      });
+
+      Highcharts.ganttChart("container", options);
+    </script>
+  </body>
+</html>

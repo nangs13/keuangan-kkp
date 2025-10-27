@@ -1,19 +1,24 @@
 package com.kkp.keuangan.backend.dao;
 
-import com.kkp.keuangan.backend.Database;
-import com.kkp.keuangan.backend.model.ModelCoa;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.model.ModelCoa;
 
 public class CoaDAO {
 
     public void insert(ModelCoa coa) {
         String sql = "INSERT INTO coa (code, nama, periode, type, parent_id, beginning, debit, credit, ending) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, coa.getCode());
             ps.setString(2, coa.getNama());
             ps.setString(3, coa.getPeriode());
@@ -32,7 +37,7 @@ public class CoaDAO {
             throw new RuntimeException(e);
         }
     }
-    
+
     // ----------------------------
     // Generate kode otomatis
     // ----------------------------
@@ -40,7 +45,7 @@ public class CoaDAO {
         // contoh parentCode = "101-01"
         String sql = "SELECT code FROM coa WHERE code LIKE ? ORDER BY code DESC LIMIT 1";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, parentCode + "%");
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -103,9 +108,9 @@ public class CoaDAO {
         }
 
         String sql = "UPDATE coa SET code = ?, nama = ?, type = ?, parent_id = ?, " +
-                     "beginning = ?, ending = ? WHERE id = ?";
+                "beginning = ?, ending = ? WHERE id = ?";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, coa.getCode());
             ps.setString(2, coa.getNama());
             ps.setString(3, coa.getType());
@@ -126,7 +131,7 @@ public class CoaDAO {
     public void delete(int id) {
         String sql = "DELETE FROM coa WHERE id = ?";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -138,12 +143,13 @@ public class CoaDAO {
         List<ModelCoa> list = new ArrayList<>();
         String sql = "SELECT * FROM coa ORDER BY id DESC";
         try (Connection conn = Database.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 Integer parentId = null;
                 int pid = rs.getInt("parent_id");
-                if (!rs.wasNull()) parentId = pid;
+                if (!rs.wasNull())
+                    parentId = pid;
 
                 list.add(new ModelCoa(
                         rs.getInt("id"),
@@ -155,8 +161,7 @@ public class CoaDAO {
                         rs.getDouble("beginning"),
                         rs.getDouble("debit"),
                         rs.getDouble("credit"),
-                        rs.getDouble("ending")
-                ));
+                        rs.getDouble("ending")));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -167,13 +172,14 @@ public class CoaDAO {
     public ModelCoa findById(int id) {
         String sql = "SELECT * FROM coa WHERE id = ?";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Integer parentId = null;
                     int pid = rs.getInt("parent_id");
-                    if (!rs.wasNull()) parentId = pid;
+                    if (!rs.wasNull())
+                        parentId = pid;
 
                     return new ModelCoa(
                             rs.getInt("id"),
@@ -185,8 +191,7 @@ public class CoaDAO {
                             rs.getDouble("beginning"),
                             rs.getDouble("debit"),
                             rs.getDouble("credit"),
-                            rs.getDouble("ending")
-                    );
+                            rs.getDouble("ending"));
                 }
             }
         } catch (SQLException e) {
@@ -194,17 +199,18 @@ public class CoaDAO {
         }
         return null;
     }
-    
+
     public ModelCoa findByCode(String code) {
         String sql = "SELECT * FROM coa WHERE code = ?";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, code);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Integer parentId = null;
                     int pid = rs.getInt("parent_id");
-                    if (!rs.wasNull()) parentId = pid;
+                    if (!rs.wasNull())
+                        parentId = pid;
 
                     return new ModelCoa(
                             rs.getInt("id"),
@@ -216,8 +222,7 @@ public class CoaDAO {
                             rs.getDouble("beginning"),
                             rs.getDouble("debit"),
                             rs.getDouble("credit"),
-                            rs.getDouble("ending")
-                    );
+                            rs.getDouble("ending"));
                 }
             }
         } catch (SQLException e) {
@@ -226,17 +231,18 @@ public class CoaDAO {
         return null;
     }
 
-    public List<ModelCoa> findByPeriode(String periode) {
+    public List<ModelCoa> findAllByCode(String code) {
         List<ModelCoa> list = new ArrayList<>();
-        String sql = "SELECT * FROM coa WHERE periode = ? ORDER BY id DESC";
+        String sql = "SELECT * FROM coa WHERE code LIKE ? ORDER BY id DESC";
+
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, periode);
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, code + "%");
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Integer parentId = null;
-                    int pid = rs.getInt("parent_id");
-                    if (!rs.wasNull()) parentId = pid;
+                    Integer parentId = rs.getObject("parent_id") != null ? rs.getInt("parent_id") : null;
 
                     list.add(new ModelCoa(
                             rs.getInt("id"),
@@ -248,8 +254,40 @@ public class CoaDAO {
                             rs.getDouble("beginning"),
                             rs.getDouble("debit"),
                             rs.getDouble("credit"),
-                            rs.getDouble("ending")
-                    ));
+                            rs.getDouble("ending")));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
+    }
+
+    public List<ModelCoa> findByPeriode(String periode) {
+        List<ModelCoa> list = new ArrayList<>();
+        String sql = "SELECT * FROM coa WHERE periode = ? ORDER BY id DESC";
+        try (Connection conn = Database.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, periode);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Integer parentId = null;
+                    int pid = rs.getInt("parent_id");
+                    if (!rs.wasNull())
+                        parentId = pid;
+
+                    list.add(new ModelCoa(
+                            rs.getInt("id"),
+                            rs.getString("code"),
+                            rs.getString("nama"),
+                            rs.getString("periode"),
+                            rs.getString("type"),
+                            parentId,
+                            rs.getDouble("beginning"),
+                            rs.getDouble("debit"),
+                            rs.getDouble("credit"),
+                            rs.getDouble("ending")));
                 }
             }
         } catch (SQLException e) {
@@ -259,11 +297,12 @@ public class CoaDAO {
     }
 
     /**
-     * Update saldo: menambahkan nominal ke salah satu field (beginning/debit/credit)
+     * Update saldo: menambahkan nominal ke salah satu field
+     * (beginning/debit/credit)
      * lalu menghitung ulang ending berdasarkan type (DEBIT / CREDIT).
      *
-     * @param coaId  id coa yang diupdate
-     * @param jenis  salah satu "beginning", "debit", "credit"
+     * @param coaId   id coa yang diupdate
+     * @param jenis   salah satu "beginning", "debit", "credit"
      * @param nominal nilai yang ingin ditambahkan (bisa positif/negatif)
      */
     public void updateSaldo(int coaId, String jenis, double nominal) {
@@ -309,7 +348,7 @@ public class CoaDAO {
         // Update ke DB
         String sql = "UPDATE coa SET beginning = ?, debit = ?, credit = ?, ending = ? WHERE id = ?";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDouble(1, beginning);
             ps.setDouble(2, debit);
             ps.setDouble(3, credit);

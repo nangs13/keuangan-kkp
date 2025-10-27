@@ -1,11 +1,15 @@
 package com.kkp.keuangan.backend.dao;
 
-import com.kkp.keuangan.backend.Database;
-import com.kkp.keuangan.backend.model.ModelCustomer;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.model.ModelCustomer;
 
 public class CustomerDAO {
 
@@ -98,5 +102,9 @@ public class CustomerDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<ModelCustomer> findByName(String nama) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

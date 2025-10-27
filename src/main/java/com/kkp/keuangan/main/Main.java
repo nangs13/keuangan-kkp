@@ -5,18 +5,21 @@
  */
 package com.kkp.keuangan.main;
 
+import java.awt.Color;
+
+import javax.swing.JComponent;
+
 import com.kkp.keuangan.event.EventMenuSelected;
+import com.kkp.keuangan.form.FormCardInfo;
+import com.kkp.keuangan.form.FormCoa;
+import com.kkp.keuangan.form.FormCustomer;
+import com.kkp.keuangan.form.FormPenjualan;
+import com.kkp.keuangan.form.FormProduk;
+import com.kkp.keuangan.form.FormSupplier;
 import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
-import com.kkp.keuangan.form.FormProduk;
-import com.kkp.keuangan.form.FormCoa;
-import com.kkp.keuangan.form.FormCardInfo;
-import com.kkp.keuangan.form.FormPenjualan;
-import com.kkp.keuangan.form.FormSupplier;
-import java.awt.Color;
-import javax.swing.JComponent;
 
 /**
  *
@@ -36,6 +39,7 @@ public class Main extends javax.swing.JFrame {
     private FormCardInfo formCardInfo;
     private FormPenjualan formPenjualan;
     private FormSupplier formSupplier;
+    private FormCustomer formCustomer;
 
 
     public Main() {
@@ -50,6 +54,7 @@ public class Main extends javax.swing.JFrame {
         formCardInfo = new FormCardInfo();
         formPenjualan = new FormPenjualan();
         formSupplier = new FormSupplier();
+        formCustomer = new FormCustomer();
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override
@@ -65,7 +70,7 @@ public class Main extends javax.swing.JFrame {
                     setForm(formCardInfo);
                 } else if (index == 6) {
                     // Master Data - Customer
-                    setForm(form3);
+                    setForm(formCustomer);
                 } else if (index == 7) {
                     // Master Data - Supplier
                     setForm(formSupplier);

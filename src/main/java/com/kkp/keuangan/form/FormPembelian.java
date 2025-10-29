@@ -1,18 +1,39 @@
 package com.kkp.keuangan.form;
 
-import com.kkp.keuangan.model.ModelPembelian;
-import com.kkp.keuangan.model.ModelPembelianDetail;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Window;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+
+import com.kkp.keuangan.model.ModelPembelian;
+import com.kkp.keuangan.model.ModelPembelianDetail;
 
 public class FormPembelian extends JPanel {
     private JTextField tfKode, tfPoStatus, tfReturStatus, tfTanggalPembelian, tfTanggalDeadline;
@@ -32,6 +53,8 @@ public class FormPembelian extends JPanel {
         generateHeaderDefaults();
         loadSuppliers();
         updateDetailState();
+         setOpaque(true);
+        setBackground(Color.WHITE);
     }
 
     private void initComponents() {

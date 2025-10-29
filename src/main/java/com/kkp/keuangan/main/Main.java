@@ -12,6 +12,7 @@ import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
 import com.kkp.keuangan.form.FormProduk;
 import com.kkp.keuangan.form.FormCoa;
+import com.kkp.keuangan.form.FormPembelian;
 import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormPenjualan;
 import com.kkp.keuangan.form.FormSupplier;
@@ -36,6 +37,7 @@ public class Main extends javax.swing.JFrame {
     private FormCardInfo formCardInfo;
     private FormPenjualan formPenjualan;
     private FormSupplier formSupplier;
+    private FormPembelian formPembelian;
 
 
     public Main() {
@@ -50,6 +52,7 @@ public class Main extends javax.swing.JFrame {
         formCardInfo = new FormCardInfo();
         formPenjualan = new FormPenjualan();
         formSupplier = new FormSupplier();
+        formPembelian = new FormPembelian();
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override
@@ -77,7 +80,7 @@ public class Main extends javax.swing.JFrame {
                     setForm(formPenjualan);
                 } else if (index == 13) {
                     // Transaksi - Pembelian
-                    setForm(form3);
+                    setForm(formPembelian);
                 } else if (index == 14) {
                     // Transaksi - Biaya
                     setForm(form3);

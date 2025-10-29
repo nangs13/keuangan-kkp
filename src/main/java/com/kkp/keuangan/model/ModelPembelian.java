@@ -9,7 +9,6 @@ import java.sql.Statement;
 import java.util.Random;
 
 public class ModelPembelian {
-
     private int id;
     private String kode;
     private String tanggalPembelian;
@@ -19,6 +18,7 @@ public class ModelPembelian {
     private double total;
     private String poStatus;
     private String returStatus;
+    private String remark;
 
     private static final String DB_URL = "jdbc:sqlite:pos_app.db";
 
@@ -26,7 +26,9 @@ public class ModelPembelian {
         return DriverManager.getConnection(DB_URL);
     }
 
-    // Getters & Setters
+    public ModelPembelian() {}
+
+    // getters and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getKode() { return kode; }
@@ -45,27 +47,26 @@ public class ModelPembelian {
     public void setPoStatus(String poStatus) { this.poStatus = poStatus; }
     public String getReturStatus() { return returStatus; }
     public void setReturStatus(String returStatus) { this.returStatus = returStatus; }
+    public String getRemark() { return remark; }
+    public void setRemark(String remark) { this.remark = remark; }
 
-    // Generate kode
+    // generate kode
     public static String generateKode() {
         String prefix = "PB-";
         int rnd = new Random().nextInt(9000) + 1000;
-        long timestamp = System.currentTimeMillis() % 100000;
-        return prefix + rnd + "-" + timestamp;
+        long t = System.currentTimeMillis() % 100000;
+        return prefix + rnd + "-" + t;
     }
 
-    // Insert → returns generated ID
+    // insert header (returns generated id)
     public int insert() throws SQLException {
-         String sql =
-        "INSERT INTO pembelian ("
-      + "kode, tanggal_pembelian, tanggal_deadline, "
-      + "supplier_id, metode_pembayaran, total, "
-      + "po_status, retur_status"
-      + ") VALUES (?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO pembelian (kode, tanggal_pembelian, tanggal_deadline, supplier_id, metode_pembayaran, total, po_status, retur_status, remark) "
+                   + "VALUES (?,?,?,?,?,?,?,?,?)";
 
         try (Connection conn = getConn();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+            conn.setAutoCommit(false);
             ps.setString(1, kode);
             ps.setString(2, tanggalPembelian);
             ps.setString(3, tanggalDeadline);
@@ -74,30 +75,26 @@ public class ModelPembelian {
             ps.setDouble(6, total);
             ps.setString(7, poStatus);
             ps.setString(8, returStatus);
+            ps.setString(9, remark);
 
             ps.executeUpdate();
-
             ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                this.id = rs.getInt(1);
-            }
-            return this.id;
+            int gen = -1;
+            if (rs.next()) gen = rs.getInt(1);
+            conn.commit();
+            this.id = gen;
+            return gen;
+        } catch (SQLException ex) {
+            throw ex;
         }
     }
 
-    // Update
+    // update & delete (optional)
     public boolean update() throws SQLException {
         if (id <= 0) throw new SQLException("ID belum terisi!");
-
-        String sql =
-        "UPDATE pembelian SET "
-      + "kode=?, tanggal_pembelian=?, tanggal_deadline=?, supplier_id=?, "
-      + "metode_pembayaran=?, total=?, po_status=?, retur_status=? "
-      + "WHERE id=?";
-
+        String sql = "UPDATE pembelian SET kode=?, tanggal_pembelian=?, tanggal_deadline=?, supplier_id=?, metode_pembayaran=?, total=?, po_status=?, retur_status=?, remark=? WHERE id=?";
         try (Connection conn = getConn();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, kode);
             ps.setString(2, tanggalPembelian);
             ps.setString(3, tanggalDeadline);
@@ -106,21 +103,17 @@ public class ModelPembelian {
             ps.setDouble(6, total);
             ps.setString(7, poStatus);
             ps.setString(8, returStatus);
-            ps.setInt(9, id);
-
+            ps.setString(9, remark);
+            ps.setInt(10, id);
             return ps.executeUpdate() > 0;
         }
     }
 
-    // Delete
     public boolean delete() throws SQLException {
         if (id <= 0) throw new SQLException("ID belum terisi!");
-
         String sql = "DELETE FROM pembelian WHERE id=?";
-
         try (Connection conn = getConn();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         }

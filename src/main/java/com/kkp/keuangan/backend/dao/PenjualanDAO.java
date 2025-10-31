@@ -1,10 +1,14 @@
 package com.kkp.keuangan.backend.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import com.kkp.keuangan.backend.Database;
 import com.kkp.keuangan.backend.model.ModelPenjualan;
 import com.kkp.keuangan.backend.model.ModelPenjualanDetail;
-import java.sql.*;
-import java.util.List;
 
 public class PenjualanDAO {
 

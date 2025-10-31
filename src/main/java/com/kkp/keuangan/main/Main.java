@@ -25,6 +25,7 @@ import com.kkp.keuangan.form.FormCoa;
 import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormPenjualan;
 import com.kkp.keuangan.form.FormSupplier;
+import com.kkp.keuangan.form.FormPembelian;
 import java.awt.Color;
 import javax.swing.JComponent;
 
@@ -46,6 +47,8 @@ public class Main extends javax.swing.JFrame {
     private FormCardInfo formCardInfo;
     private FormPenjualan formPenjualan;
     private FormSupplier formSupplier;
+    private FormCustomer formCustomer;
+    private FormPembelian formPembelian;
 
 
     public Main() {
@@ -60,6 +63,7 @@ public class Main extends javax.swing.JFrame {
         formCardInfo = new FormCardInfo();
         formPenjualan = new FormPenjualan();
         formSupplier = new FormSupplier();
+        formPembelian = new FormPembelian();
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override

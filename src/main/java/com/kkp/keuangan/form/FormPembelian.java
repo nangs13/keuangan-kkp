@@ -14,11 +14,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -31,377 +33,459 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
+import com.kkp.keuangan.component.uis.RButtonUI;
+import com.kkp.keuangan.component.uis.RComboBoxUI;
+import com.kkp.keuangan.component.uis.RTextFieldUI;
 import com.kkp.keuangan.model.ModelPembelian;
 import com.kkp.keuangan.model.ModelPembelianDetail;
+import com.kkp.keuangan.swing.ScrollBar;
 
 public class FormPembelian extends JPanel {
-    private JTextField tfKode, tfPoStatus, tfReturStatus, tfTanggalPembelian, tfTanggalDeadline;
+
+    // ==== HEADER ====
+    private JTextField txtKode, txtPoStatus, txtReturStatus, txtTanggalPembelian, txtTanggalDeadline;
     private JComboBox<SupplierItem> cbSupplier;
     private JComboBox<String> cbMetodePembayaran;
     private JTextArea taRemark;
+
+    // ==== TABLE ====
+    private JTable table;
+    private DefaultTableModel model;
+
+    // ==== BUTTON ====
     private JButton btnTambahItem, btnHapusItem, btnSimpan, btnRefreshSupplier;
-    private JTable detailTable;
-    private DefaultTableModel detailModel;
-    private JLabel lblGrandTotal, lblInfo;
+    private JLabel lblGrandTotal;
 
     private static final String DB_URL = "jdbc:sqlite:pos_app.db";
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     public FormPembelian() {
         initComponents();
-        generateHeaderDefaults();
         loadSuppliers();
-        updateDetailState();
-         setOpaque(true);
-        setBackground(Color.WHITE);
+        generateHeaderDefaults();
+        calcTotal();
     }
 
     private void initComponents() {
-        setLayout(new GridBagLayout());
-        setBorder(new EmptyBorder(12,12,12,12));
+        setOpaque(false);
+        setLayout(new BorderLayout(15, 15));
+        setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        // =========================================================
+        // 🧩 TITLE
+        // =========================================================
+        JLabel lblTitle = new JLabel("Form Pembelian");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblTitle.setForeground(new Color(50, 50, 50));
+
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setOpaque(false);
+        titlePanel.add(lblTitle, BorderLayout.WEST);
+
+        // =========================================================
+        // 🧩 HEADER FORM
+        // =========================================================
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6,6,6,6);
+        gbc.insets = new Insets(6, 6, 6, 6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
 
-        // Row 0: title
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 6;
-        JLabel title = new JLabel("Buat Pembelian");
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
-        add(title, gbc);
+        txtKode = new JTextField();
+        txtKode.setUI(new RTextFieldUI());
+        txtPoStatus = new JTextField();
+        txtPoStatus.setUI(new RTextFieldUI());
+        txtReturStatus = new JTextField();
+        txtReturStatus.setUI(new RTextFieldUI());
+        txtTanggalPembelian = new JTextField();
+        txtTanggalPembelian.setUI(new RTextFieldUI());
+        txtTanggalDeadline = new JTextField();
+        txtTanggalDeadline.setUI(new RTextFieldUI());
 
-        // Row 1: Kode, PO Status, Retur Status
-        gbc.gridwidth = 1;
-        gbc.gridy = 1;
-
-        tfKode = makeReadonlyField();
-        tfPoStatus = makeReadonlyField();
-        tfReturStatus = makeReadonlyField();
-
-        addLabeledComponent("Kode pembelian", tfKode, 0,1,2);
-        addLabeledComponent("Purchase Order Status", tfPoStatus, 2,1,2);
-        addLabeledComponent("Retur Status", tfReturStatus, 4,1,2);
-
-        // Row 2: tanggal pembelian, deadline, supplier
-        tfTanggalPembelian = new JTextField();
-        tfTanggalDeadline = new JTextField();
         cbSupplier = new JComboBox<>();
-        cbSupplier.addItem(new SupplierItem(0, "Pilih supplier terlebih dahulu"));
-        cbSupplier.addActionListener(e -> {
-            SupplierItem s = (SupplierItem) cbSupplier.getSelectedItem();
-            if (s != null) {
-                // if supplier selected (id !=0) enable detail area
-                updateDetailState();
-            }
-        });
+        cbSupplier.setUI(new RComboBoxUI());
+        cbMetodePembayaran = new JComboBox<>(new String[] { "Kas Kecil", "Transfer Bank", "Cash" });
+        cbMetodePembayaran.setUI(new RComboBoxUI());
 
-        addLabeledComponent("Tanggal Pembelian", tfTanggalPembelian, 0,2,2);
-        addLabeledComponent("Tanggal Deadline", tfTanggalDeadline, 2,2,2);
-        addLabeledComponent("Supplier", cbSupplier, 4,2,2);
+        taRemark = new JTextArea(3, 20);
+        taRemark.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        // Row 3: Metode Pembayaran, Remark (remark takes multiple columns)
-        cbMetodePembayaran = new JComboBox<>(new String[] {"Kas Kecil", "Transfer Bank", "Cash"});
-        addLabeledComponent("Metode Pembayaran", cbMetodePembayaran, 0,3,2);
+        // Row 1
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(new JLabel("Kode Pembelian"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtKode, gbc);
 
-        taRemark = new JTextArea(3, 40);
+        gbc.gridx = 2;
+        formPanel.add(new JLabel("PO Status"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtPoStatus, gbc);
+
+        gbc.gridx = 4;
+        formPanel.add(new JLabel("Retur Status"), gbc);
+        gbc.gridx = 5;
+        formPanel.add(txtReturStatus, gbc);
+
+        // Row 2
+        gbc.gridx = 0;
+        gbc.gridy++;
+        formPanel.add(new JLabel("Tanggal Pembelian"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtTanggalPembelian, gbc);
+
+        gbc.gridx = 2;
+        formPanel.add(new JLabel("Tanggal Deadline"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtTanggalDeadline, gbc);
+
+        gbc.gridx = 4;
+        formPanel.add(new JLabel("Supplier"), gbc);
+        gbc.gridx = 5;
+        formPanel.add(cbSupplier, gbc);
+
+        // Row 3
+        gbc.gridx = 0;
+        gbc.gridy++;
+        formPanel.add(new JLabel("Metode Pembayaran"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(cbMetodePembayaran, gbc);
+
+        gbc.gridx = 2;
+        formPanel.add(new JLabel("Remark"), gbc);
+        gbc.gridx = 3;
+        gbc.gridwidth = 3;
         JScrollPane spRemark = new JScrollPane(taRemark);
-        gbc.gridx = 2; gbc.gridy = 3; gbc.gridwidth = 4; gbc.fill = GridBagConstraints.BOTH;
-        add(spRemark, gbc);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        formPanel.add(spRemark, gbc);
         gbc.gridwidth = 1;
 
-        // Row 4: detail table label
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 6;
-        JLabel lblDetail = new JLabel("Detail Item");
-        lblDetail.setFont(lblDetail.getFont().deriveFont(Font.BOLD, 13f));
-        add(lblDetail, gbc);
-        gbc.gridwidth = 1;
-
-        // Row 5: detail table
-        detailModel = new DefaultTableModel(new Object[] {"No", "Nama Barang", "Qty", "Satuan", "Harga/Unit", "Total"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) {
-                // allow qty, satuan, harga editable (2,3,4)
-                return column == 2 || column == 3 || column == 4;
+        // =========================================================
+        // 🧩 TABLE DETAIL
+        // =========================================================
+        model = new DefaultTableModel(
+                new Object[] { "No", "Nama Barang", "Qty", "Satuan", "Harga/Unit", "Total", "Aksi" }, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return c == 2 || c == 3 || c == 4 || c == 6;
             }
         };
-        detailTable = new JTable(detailModel);
-        detailTable.setRowHeight(24);
 
-        // recalc total when qty or harga edited
-        detailModel.addTableModelListener(e -> recalcTotals());
+        table = new JTable(model);
+        table.setRowHeight(28);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(230, 230, 230));
+        table.setSelectionBackground(new Color(200, 220, 255));
+        table.setGridColor(new Color(240, 240, 240));
+        model.addTableModelListener(e -> calcTotal());
 
-        JScrollPane spTable = new JScrollPane(detailTable);
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 6; gbc.fill = GridBagConstraints.BOTH; gbc.weightx = 1; gbc.weighty = 1;
-        add(spTable, gbc);
-        gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weighty = 0; gbc.weightx = 0;
-        gbc.gridwidth = 1;
+        // Button Renderer
+        TableColumn aksiColumn = table.getColumnModel().getColumn(6);
+        aksiColumn.setCellRenderer(new ButtonRenderer());
+        aksiColumn.setCellEditor(new ButtonEditor(new JCheckBox(), this));
 
-        // Row 6: info & buttons
-        lblInfo = new JLabel("Pilih supplier terlebih dahulu");
-        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 3;
-        add(lblInfo, gbc);
+        JScrollPane spTable = new JScrollPane(table);
+        spTable.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        spTable.setVerticalScrollBar(new ScrollBar());
+        spTable.getViewport().setBackground(Color.WHITE);
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8,0));
-        btnTambahItem = new JButton("Tambah Item");
-        btnHapusItem = new JButton("Hapus Item");
-        btnRefreshSupplier = new JButton("Refresh Supplier");
-        btnSimpan = new JButton("Simpan");
+        // =========================================================
+        // 🧩 FOOTER (BUTTONS + TOTAL)
+        // =========================================================
+        JPanel bottomPanel = new JPanel(new GridBagLayout());
+        bottomPanel.setOpaque(false);
 
-        btnTambahItem.addActionListener(e -> onTambahItem());
-        btnHapusItem.addActionListener(e -> onHapusItem());
-        btnRefreshSupplier.addActionListener(e -> loadSuppliers());
-        btnSimpan.addActionListener(e -> onSimpan());
-
-        btnPanel.add(btnRefreshSupplier);
-        btnPanel.add(btnTambahItem);
-        btnPanel.add(btnHapusItem);
-        btnPanel.add(btnSimpan);
-
-        gbc.gridx = 3; gbc.gridy = 6; gbc.gridwidth = 3;
-        add(btnPanel, gbc);
-        gbc.gridwidth = 1;
-
-        // Row 7: Grand total
-        lblGrandTotal = new JLabel("0.00");
-        lblGrandTotal.setFont(lblGrandTotal.getFont().deriveFont(Font.BOLD, 14f));
-        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        totalPanel.add(new JLabel("Total: "));
-        totalPanel.add(lblGrandTotal);
-
-        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 6;
-        add(totalPanel, gbc);
-    }
-
-    private JTextField makeReadonlyField() {
-        JTextField t = new JTextField();
-        t.setEditable(false);
-        t.setBackground(Color.WHITE);
-        return t;
-    }
-
-    private void addLabeledComponent(String label, Component comp, int gridx, int gridy, int width) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6,6,6,6);
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = gridx; gbc.gridy = gridy; gbc.gridwidth = 1;
-        add(new JLabel(label), gbc);
-        gbc.gridx = gridx; gbc.gridy = gridy+1; gbc.gridwidth = width;
-        add(comp, gbc);
+
+        lblGrandTotal = new JLabel("0.00");
+        lblGrandTotal.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
+        btnRefreshSupplier = uiBtn("Refresh Supplier");
+        btnTambahItem = uiBtn("Tambah Item");
+        btnHapusItem = uiBtn("Hapus Item");
+        btnSimpan = uiBtn("Simpan");
+
+        btnRefreshSupplier.addActionListener(e -> loadSuppliers());
+        btnTambahItem.addActionListener(e -> addItem());
+        btnHapusItem.addActionListener(e -> removeItem());
+        btnSimpan.addActionListener(e -> save());
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        bottomPanel.add(new JLabel("Grand Total: "), gbc);
+
+        gbc.gridx = 1;
+        bottomPanel.add(lblGrandTotal, gbc);
+
+        gbc.gridx = 2;
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(btnRefreshSupplier);
+        buttonPanel.add(btnTambahItem);
+        buttonPanel.add(btnHapusItem);
+        buttonPanel.add(btnSimpan);
+        bottomPanel.add(buttonPanel, gbc);
+
+        // =========================================================
+        // 🧩 ADD TO MAIN PANEL
+        // =========================================================
+        add(titlePanel, BorderLayout.NORTH);
+        add(formPanel, BorderLayout.NORTH);
+        add(spTable, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    // =========================================================
+    // 🧩 UTILITIES & EVENT HANDLERS
+    // =========================================================
+    private JButton uiBtn(String text) {
+        JButton b = new JButton(text);
+        b.setUI(new RButtonUI());
+        return b;
     }
 
     private void generateHeaderDefaults() {
-        tfKode.setText(ModelPembelian.generateKode());
-        tfPoStatus.setText("OPEN");
-        tfReturStatus.setText("NONE");
-        tfTanggalPembelian.setText(df.format(new Date()));
-        tfTanggalDeadline.setText(df.format(new Date()));
+        txtKode.setText(ModelPembelian.generateKode());
+        txtPoStatus.setText("OPEN");
+        txtReturStatus.setText("NONE");
+        txtTanggalPembelian.setText(df.format(new Date()));
+        txtTanggalDeadline.setText(df.format(new Date()));
         taRemark.setText("");
     }
 
-    private void updateDetailState() {
-        SupplierItem s = (SupplierItem) cbSupplier.getSelectedItem();
-        boolean enabled = s != null && s.getId() != 0;
-        detailTable.setEnabled(enabled);
-        btnTambahItem.setEnabled(enabled);
-        btnHapusItem.setEnabled(enabled && detailModel.getRowCount() > 0);
-        lblInfo.setText(enabled ? "Tambah item" : "Pilih supplier terlebih dahulu");
-        if (!enabled) {
-            // clear detail table text (show placeholder row)
-            detailModel.setRowCount(0);
-        }
-    }
-
     private void loadSuppliers() {
-        // load suppliers from DB
         cbSupplier.removeAllItems();
-        cbSupplier.addItem(new SupplierItem(0, "Pilih supplier terlebih dahulu"));
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement("SELECT id, nama FROM supplier ORDER BY nama");
-             ResultSet rs = ps.executeQuery()) {
-            boolean any = false;
+        cbSupplier.addItem(new SupplierItem(0, "Pilih Supplier"));
+        try (Connection c = DriverManager.getConnection(DB_URL);
+                PreparedStatement ps = c.prepareStatement("SELECT id, nama FROM supplier ORDER BY nama");
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                any = true;
                 cbSupplier.addItem(new SupplierItem(rs.getInt("id"), rs.getString("nama")));
             }
-            if (!any) {
-                lblInfo.setText("Tidak ada supplier di database. Silakan tambahkan supplier terlebih dahulu.");
-            } else {
-                lblInfo.setText("Supplier ter-load.");
-            }
-        } catch (Exception ex) {
-            lblInfo.setText("Gagal memuat supplier: " + ex.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal memuat supplier: " + e.getMessage());
         }
-        // ensure detail state reflects selection
-        updateDetailState();
     }
 
-    private void onTambahItem() {
+    private void addItem() {
         AddItemDialog d = new AddItemDialog(SwingUtilities.getWindowAncestor(this));
         d.setVisible(true);
         if (!d.isCancelled()) {
-            int no = detailModel.getRowCount() + 1;
-            Object[] row = new Object[] {
-                    no,
+            model.addRow(new Object[] {
+                    model.getRowCount() + 1,
                     d.getNamaBarang(),
                     d.getQty(),
                     d.getSatuan(),
                     d.getHargaUnit(),
-                    String.format("%.2f", d.getQty() * d.getHargaUnit())
-            };
-            detailModel.addRow(row);
-            recalcTotals();
-            updateDetailState();
+                    d.getQty() * d.getHargaUnit(),
+                    "Hapus"
+            });
+            calcTotal();
         }
     }
 
-    private void onHapusItem() {
-        int sel = detailTable.getSelectedRow();
-        if (sel >= 0) {
-            detailModel.removeRow(sel);
-            // re-number
-            for (int i = 0; i < detailModel.getRowCount(); i++) {
-                detailModel.setValueAt(i+1, i, 0);
-            }
-            recalcTotals();
-            updateDetailState();
-        } else {
-            JOptionPane.showMessageDialog(this, "Pilih baris item untuk dihapus.");
+    private void removeItem() {
+        int row = table.getSelectedRow();
+        if (row >= 0) {
+            model.removeRow(row);
+            calcTotal();
         }
     }
 
-    private void recalcTotals() {
-        double grand = 0;
-        for (int i = 0; i < detailModel.getRowCount(); i++) {
+    private void removeItem(int row) {
+        if (row >= 0 && row < model.getRowCount()) {
+            model.removeRow(row);
+            calcTotal();
+        }
+    }
+
+    private void calcTotal() {
+        double sum = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
             try {
-                Object q = detailModel.getValueAt(i, 2);
-                Object h = detailModel.getValueAt(i, 4);
-                double qty = q == null ? 0 : Double.parseDouble(q.toString());
-                double harga = h == null ? 0 : Double.parseDouble(h.toString());
+                double qty = Double.parseDouble(model.getValueAt(i, 2).toString());
+                double harga = Double.parseDouble(model.getValueAt(i, 4).toString());
                 double total = qty * harga;
-                detailModel.setValueAt(String.format("%.2f", total), i, 5);
-                grand += total;
-            } catch (Exception ex) {
-                // ignore parse
+                model.setValueAt(total, i, 5);
+                sum += total;
+            } catch (Exception ignored) {
             }
         }
-        lblGrandTotal.setText(String.format("%.2f", grand));
+        lblGrandTotal.setText(String.format("%.2f", sum));
     }
 
-    private void onSimpan() {
+    private void save() {
         SupplierItem s = (SupplierItem) cbSupplier.getSelectedItem();
         if (s == null || s.getId() == 0) {
-            JOptionPane.showMessageDialog(this, "Silakan pilih supplier terlebih dahulu.");
+            JOptionPane.showMessageDialog(this, "Pilih supplier terlebih dahulu!");
             return;
         }
-        if (detailModel.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Belum ada item pembelian.");
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Belum ada item!");
             return;
         }
-
         try {
-            ModelPembelian pembelian = new ModelPembelian();
-            pembelian.setKode(tfKode.getText());
-            pembelian.setTanggalPembelian(tfTanggalPembelian.getText());
-            pembelian.setTanggalDeadline(tfTanggalDeadline.getText());
-            pembelian.setSupplierId(s.getId());
-            pembelian.setMetodePembayaran(cbMetodePembayaran.getSelectedItem().toString());
-            pembelian.setTotal(Double.parseDouble(lblGrandTotal.getText()));
-            pembelian.setPoStatus(tfPoStatus.getText());
-            pembelian.setReturStatus(tfReturStatus.getText());
-            pembelian.setRemark(taRemark.getText());
+            ModelPembelian p = new ModelPembelian();
+            p.setKode(txtKode.getText());
+            p.setTanggalPembelian(txtTanggalPembelian.getText());
+            p.setTanggalDeadline(txtTanggalDeadline.getText());
+            p.setSupplierId(s.getId());
+            p.setMetodePembayaran(cbMetodePembayaran.getSelectedItem().toString());
+            p.setTotal(Double.parseDouble(lblGrandTotal.getText()));
+            p.setPoStatus(txtPoStatus.getText());
+            p.setReturStatus(txtReturStatus.getText());
+            p.setRemark(taRemark.getText());
 
-            int pembelianId = pembelian.insert(); // insert header
-
-            // insert details
-            for (int i = 0; i < detailModel.getRowCount(); i++) {
-                String nama = String.valueOf(detailModel.getValueAt(i, 1));
-                double qty = Double.parseDouble(String.valueOf(detailModel.getValueAt(i, 2)));
-                String satuan = String.valueOf(detailModel.getValueAt(i, 3));
-                double harga = Double.parseDouble(String.valueOf(detailModel.getValueAt(i, 4)));
+            int id = p.insert();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String nama = model.getValueAt(i, 1).toString();
+                double qty = Double.parseDouble(model.getValueAt(i, 2).toString());
+                String satuan = model.getValueAt(i, 3).toString();
+                double harga = Double.parseDouble(model.getValueAt(i, 4).toString());
                 double total = qty * harga;
-                ModelPembelianDetail det = new ModelPembelianDetail(0, pembelianId, nama, qty, satuan, harga, total);
+                ModelPembelianDetail det = new ModelPembelianDetail(0, id, nama, qty, satuan, harga, total);
                 det.insert();
             }
-
-            // You can call CoaPembelian to generate accounting entries if needed
-            JOptionPane.showMessageDialog(this, "Pembelian tersimpan (id=" + pembelianId + ").");
-            // reset form
-            generateHeaderDefaults();
-            detailModel.setRowCount(0);
-            loadSuppliers();
-            recalcTotals();
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Gagal simpan ke DB: " + ex.getMessage());
-            ex.printStackTrace();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Pembelian berhasil disimpan!");
+            resetForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal simpan: " + e.getMessage());
         }
     }
 
-    // Simple supplier holder
+    private void resetForm() {
+        generateHeaderDefaults();
+        model.setRowCount(0);
+        loadSuppliers();
+        calcTotal();
+    }
+
+    // ==== INNER CLASSES ====
     private static class SupplierItem {
         private final int id;
         private final String name;
-        public SupplierItem(int id, String name) { this.id = id; this.name = name; }
-        public int getId() { return id; }
-        public String getName() { return name; }
-        @Override public String toString() { return name; }
+
+        SupplierItem(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
-    // Dialog to add item
+    private static class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setOpaque(true);
+            setText("Hapus");
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
+            return this;
+        }
+    }
+
+    private static class ButtonEditor extends DefaultCellEditor {
+        private JButton button;
+        private boolean clicked;
+        private int row;
+        private final FormPembelian parent;
+
+        public ButtonEditor(JCheckBox check, FormPembelian parent) {
+            super(check);
+            this.parent = parent;
+            button = new JButton("Hapus");
+            button.addActionListener(e -> fireEditingStopped());
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable t, Object v, boolean s, int r, int c) {
+            row = r;
+            clicked = true;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (clicked)
+                parent.removeItem(row);
+            clicked = false;
+            return "Hapus";
+        }
+    }
+
     private static class AddItemDialog extends JDialog {
         private boolean cancelled = true;
         private JTextField tfNama, tfQty, tfSatuan, tfHarga;
 
         public AddItemDialog(Window owner) {
             super(owner, "Tambah Item", ModalityType.APPLICATION_MODAL);
-            init();
-        }
+            setSize(360, 220);
+            setLocationRelativeTo(owner);
+            setLayout(new BorderLayout(10, 10));
 
-        private void init() {
-            setSize(380,220);
-            setLocationRelativeTo(getOwner());
-            setLayout(new BorderLayout(8,8));
-            JPanel p = new JPanel(new GridLayout(4,2,6,6));
-            p.add(new JLabel("Nama Barang:")); tfNama = new JTextField(); p.add(tfNama);
-            p.add(new JLabel("Quantity:")); tfQty = new JTextField("1"); p.add(tfQty);
-            p.add(new JLabel("Satuan:")); tfSatuan = new JTextField("pcs"); p.add(tfSatuan);
-            p.add(new JLabel("Harga/Unit:")); tfHarga = new JTextField("0"); p.add(tfHarga);
+            JPanel p = new JPanel(new GridLayout(4, 2, 6, 6));
+            p.add(new JLabel("Nama Barang:"));
+            tfNama = new JTextField();
+            p.add(tfNama);
+            p.add(new JLabel("Qty:"));
+            tfQty = new JTextField("1");
+            p.add(tfQty);
+            p.add(new JLabel("Satuan:"));
+            tfSatuan = new JTextField("pcs");
+            p.add(tfSatuan);
+            p.add(new JLabel("Harga:"));
+            tfHarga = new JTextField("0");
+            p.add(tfHarga);
             add(p, BorderLayout.CENTER);
-            JPanel btn = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
             JButton ok = new JButton("OK");
             JButton cancel = new JButton("Batal");
-            btn.add(ok); btn.add(cancel);
-            add(btn, BorderLayout.SOUTH);
-
             ok.addActionListener(e -> {
-                if (tfNama.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Nama barang harus diisi.");
-                    return;
+                if (!tfNama.getText().trim().isEmpty()) {
+                    cancelled = false;
+                    setVisible(false);
                 }
-                try {
-                    Double.parseDouble(tfQty.getText());
-                    Double.parseDouble(tfHarga.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Format qty/harga tidak valid.");
-                    return;
-                }
-                cancelled = false;
-                setVisible(false);
             });
+            cancel.addActionListener(e -> setVisible(false));
 
-            cancel.addActionListener(e -> {
-                cancelled = true;
-                setVisible(false);
-            });
+            JPanel bp = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            bp.add(ok);
+            bp.add(cancel);
+            add(bp, BorderLayout.SOUTH);
         }
 
-        public boolean isCancelled() { return cancelled; }
-        public String getNamaBarang() { return tfNama.getText().trim(); }
-        public double getQty() { try { return Double.parseDouble(tfQty.getText().trim()); } catch(Exception e) { return 0; } }
-        public String getSatuan() { return tfSatuan.getText().trim(); }
-        public double getHargaUnit() { try { return Double.parseDouble(tfHarga.getText().trim()); } catch(Exception e) { return 0; } }
+        public boolean isCancelled() {
+            return cancelled;
+        }
+
+        public String getNamaBarang() {
+            return tfNama.getText().trim();
+        }
+
+        public double getQty() {
+            return Double.parseDouble(tfQty.getText().trim());
+        }
+
+        public String getSatuan() {
+            return tfSatuan.getText().trim();
+        }
+
+        public double getHargaUnit() {
+            return Double.parseDouble(tfHarga.getText().trim());
+        }
     }
 }

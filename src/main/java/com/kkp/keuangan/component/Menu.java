@@ -1,7 +1,5 @@
 package com.kkp.keuangan.component;
 
-import com.kkp.keuangan.event.EventMenuSelected;
-import com.kkp.keuangan.model.Model_Menu;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -10,7 +8,11 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+
 import javax.swing.JFrame;
+
+import com.kkp.keuangan.event.EventMenuSelected;
+import com.kkp.keuangan.model.Model_Menu;
 
 public class Menu extends javax.swing.JPanel {
 

@@ -20,12 +20,33 @@ public class ModelSupplier {
     }
 
     // Getter
-    public int getId() { return id; }
-    public String getNama() { return nama; }
-    public double getHutang() { return hutang; }
+    public int getId() {
+        return id;
+    }
+
+    public String getNama() {
+        return nama;
+    }
+
+    public double getHutang() {
+        return hutang;
+    }
 
     // Setter
-    public void setId(int id) { this.id = id; }
-    public void setNama(String nama) { this.nama = nama; }
-    public void setHutang(double hutang) { this.hutang = hutang; }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
+    public void setHutang(double hutang) {
+        this.hutang = hutang;
+    }
+
+    @Override
+    public String toString() {
+        return nama; // tampilkan kode + nama
+    }
 }

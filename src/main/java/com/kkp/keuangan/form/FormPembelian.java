@@ -10,12 +10,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
@@ -36,19 +33,24 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.kkp.keuangan.backend.dao.CoaDAO;
+import com.kkp.keuangan.backend.dao.PembelianDAO;
+import com.kkp.keuangan.backend.dao.SupplierDAO;
+import com.kkp.keuangan.backend.model.ModelCoa;
+import com.kkp.keuangan.backend.model.ModelPembelian;
+import com.kkp.keuangan.backend.model.ModelPembelianDetail;
+import com.kkp.keuangan.backend.model.ModelSupplier;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RComboBoxUI;
 import com.kkp.keuangan.component.uis.RTextFieldUI;
-import com.kkp.keuangan.model.ModelPembelian;
-import com.kkp.keuangan.model.ModelPembelianDetail;
 import com.kkp.keuangan.swing.ScrollBar;
 
 public class FormPembelian extends JPanel {
 
     // ==== HEADER ====
     private JTextField txtKode, txtPoStatus, txtReturStatus, txtTanggalPembelian, txtTanggalDeadline;
-    private JComboBox<SupplierItem> cbSupplier;
-    private JComboBox<String> cbMetodePembayaran;
+    private JComboBox<ModelSupplier> cbSupplier;
+    private JComboBox<ModelCoa> cbCo;
     private JTextArea taRemark;
 
     // ==== TABLE ====
@@ -66,7 +68,7 @@ public class FormPembelian extends JPanel {
         initComponents();
         loadSuppliers();
         generateHeaderDefaults();
-        calcTotal();
+        // calcTotal();
     }
 
     private void initComponents() {
@@ -108,8 +110,10 @@ public class FormPembelian extends JPanel {
 
         cbSupplier = new JComboBox<>();
         cbSupplier.setUI(new RComboBoxUI());
-        cbMetodePembayaran = new JComboBox<>(new String[] { "Kas Kecil", "Transfer Bank", "Cash" });
-        cbMetodePembayaran.setUI(new RComboBoxUI());
+        // cbCo = new JComboBox<>(new String[] { "Kas Kecil", "Transfer
+        // Bank", "Cash" });
+        cbCo = new JComboBox<>();
+        cbCo.setUI(new RComboBoxUI());
 
         taRemark = new JTextArea(3, 20);
         taRemark.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
@@ -153,7 +157,7 @@ public class FormPembelian extends JPanel {
         gbc.gridy++;
         formPanel.add(new JLabel("Metode Pembayaran"), gbc);
         gbc.gridx = 1;
-        formPanel.add(cbMetodePembayaran, gbc);
+        formPanel.add(cbCo, gbc);
 
         gbc.gridx = 2;
         formPanel.add(new JLabel("Remark"), gbc);
@@ -181,7 +185,7 @@ public class FormPembelian extends JPanel {
         table.getTableHeader().setBackground(new Color(230, 230, 230));
         table.setSelectionBackground(new Color(200, 220, 255));
         table.setGridColor(new Color(240, 240, 240));
-        model.addTableModelListener(e -> calcTotal());
+        // model.addTableModelListener(e -> calcTotal());
 
         // Button Renderer
         TableColumn aksiColumn = table.getColumnModel().getColumn(6);
@@ -239,6 +243,7 @@ public class FormPembelian extends JPanel {
         add(formPanel, BorderLayout.NORTH);
         add(spTable, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
+        loadParentCombo();
     }
 
     // =========================================================
@@ -259,17 +264,37 @@ public class FormPembelian extends JPanel {
         taRemark.setText("");
     }
 
+    // private void loadSuppliers() {
+    // cbSupplier.removeAllItems();
+    // cbSupplier.addItem(new SupplierItem(0, "Pilih Supplier"));
+    // try (Connection c = DriverManager.getConnection(DB_URL);
+    // PreparedStatement ps = c.prepareStatement("SELECT id, nama FROM supplier
+    // ORDER BY nama");
+    // ResultSet rs = ps.executeQuery()) {
+    // while (rs.next()) {
+    // cbSupplier.addItem(new SupplierItem(rs.getInt("id"), rs.getString("nama")));
+    // }
+    // } catch (Exception e) {
+    // JOptionPane.showMessageDialog(this, "Gagal memuat supplier: " +
+    // e.getMessage());
+    // }
+    // }
+
     private void loadSuppliers() {
         cbSupplier.removeAllItems();
-        cbSupplier.addItem(new SupplierItem(0, "Pilih Supplier"));
-        try (Connection c = DriverManager.getConnection(DB_URL);
-                PreparedStatement ps = c.prepareStatement("SELECT id, nama FROM supplier ORDER BY nama");
-                ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                cbSupplier.addItem(new SupplierItem(rs.getInt("id"), rs.getString("nama")));
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat supplier: " + e.getMessage());
+        List<ModelSupplier> list = SupplierDAO.findAll();
+        cbSupplier.addItem(null);
+        for (ModelSupplier c : list) {
+            cbSupplier.addItem(c);
+        }
+    }
+
+    private void loadParentCombo() {
+        cbCo.removeAllItems();
+        List<ModelCoa> list = CoaDAO.findAllByCode("101-01");
+        cbCo.addItem(null);
+        for (ModelCoa c : list) {
+            cbCo.addItem(c);
         }
     }
 
@@ -284,7 +309,7 @@ public class FormPembelian extends JPanel {
                     d.getSatuan(),
                     d.getHargaUnit(),
                     d.getQty() * d.getHargaUnit(),
-                    "Hapus"
+
             });
             calcTotal();
         }
@@ -321,7 +346,7 @@ public class FormPembelian extends JPanel {
     }
 
     private void save() {
-        SupplierItem s = (SupplierItem) cbSupplier.getSelectedItem();
+        ModelSupplier s = (ModelSupplier) cbSupplier.getSelectedItem();
         if (s == null || s.getId() == 0) {
             JOptionPane.showMessageDialog(this, "Pilih supplier terlebih dahulu!");
             return;
@@ -336,53 +361,42 @@ public class FormPembelian extends JPanel {
             p.setTanggalPembelian(txtTanggalPembelian.getText());
             p.setTanggalDeadline(txtTanggalDeadline.getText());
             p.setSupplierId(s.getId());
-            p.setMetodePembayaran(cbMetodePembayaran.getSelectedItem().toString());
+            p.setCoaId(((ModelCoa) cbCo.getSelectedItem()).getId());
             p.setTotal(Double.parseDouble(lblGrandTotal.getText()));
             p.setPoStatus(txtPoStatus.getText());
             p.setReturStatus(txtReturStatus.getText());
             p.setRemark(taRemark.getText());
 
-            int id = p.insert();
+            PembelianDAO dao = new PembelianDAO();
+            int id = dao.insert(p);
+
             for (int i = 0; i < model.getRowCount(); i++) {
                 String nama = model.getValueAt(i, 1).toString();
                 double qty = Double.parseDouble(model.getValueAt(i, 2).toString());
                 String satuan = model.getValueAt(i, 3).toString();
                 double harga = Double.parseDouble(model.getValueAt(i, 4).toString());
                 double total = qty * harga;
-                ModelPembelianDetail det = new ModelPembelianDetail(0, id, nama, qty, satuan, harga, total);
+
+                ModelPembelianDetail det = new ModelPembelianDetail(
+                        0,
+                        id,
+                        0,
+                        qty,
+                        satuan,
+                        harga,
+                        total);
+
                 det.insert();
             }
-            JOptionPane.showMessageDialog(this, "Pembelian berhasil disimpan!");
-            resetForm();
+
+            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
+            generateHeaderDefaults();
+            model.setRowCount(0);
+            loadSuppliers();
+            calcTotal();
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal simpan: " + e.getMessage());
-        }
-    }
-
-    private void resetForm() {
-        generateHeaderDefaults();
-        model.setRowCount(0);
-        loadSuppliers();
-        calcTotal();
-    }
-
-    // ==== INNER CLASSES ====
-    private static class SupplierItem {
-        private final int id;
-        private final String name;
-
-        SupplierItem(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        @Override
-        public String toString() {
-            return name;
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan: " + e.getMessage());
         }
     }
 

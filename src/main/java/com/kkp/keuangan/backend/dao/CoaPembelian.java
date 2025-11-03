@@ -15,3 +15,4 @@ public class CoaPembelian {
     public static Map<String,String> getAll() { return COA; }
     public static String getNama(String kode) { return COA.get(kode); }
 }
+

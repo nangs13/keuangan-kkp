@@ -139,7 +139,7 @@ public class CoaDAO {
         }
     }
 
-    public List<ModelCoa> findAll() {
+    public static List<ModelCoa> findAll() {
         List<ModelCoa> list = new ArrayList<>();
         String sql = "SELECT * FROM coa ORDER BY id DESC";
         try (Connection conn = Database.getConnection();
@@ -231,7 +231,7 @@ public class CoaDAO {
         return null;
     }
 
-    public List<ModelCoa> findAllByCode(String code) {
+    public static List<ModelCoa> findAllByCode(String code) {
         List<ModelCoa> list = new ArrayList<>();
         String sql = "SELECT * FROM coa WHERE code LIKE ? ORDER BY id DESC";
 

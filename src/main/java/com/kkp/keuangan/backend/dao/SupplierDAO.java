@@ -1,11 +1,15 @@
 package com.kkp.keuangan.backend.dao;
 
-import com.kkp.keuangan.backend.Database;
-import com.kkp.keuangan.backend.model.ModelSupplier;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.model.ModelSupplier;
 
 public class SupplierDAO {
 
@@ -45,7 +49,7 @@ public class SupplierDAO {
         }
     }
 
-    public List<ModelSupplier> findAll() {
+    public static List<ModelSupplier> findAll() {
         List<ModelSupplier> list = new ArrayList<>();
         String sql = "SELECT * FROM supplier ORDER BY id DESC";
         try (Connection conn = Database.getConnection();

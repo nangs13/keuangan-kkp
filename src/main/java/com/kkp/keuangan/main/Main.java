@@ -6,9 +6,7 @@
 package com.kkp.keuangan.main;
 
 import java.awt.Color;
-
 import javax.swing.JComponent;
-
 import com.kkp.keuangan.event.EventMenuSelected;
 import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormCoa;
@@ -26,6 +24,7 @@ import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormPenjualan;
 import com.kkp.keuangan.form.FormSupplier;
 import com.kkp.keuangan.form.FormPembelian;
+import com.kkp.keuangan.form.FormMutasikas;
 import java.awt.Color;
 import javax.swing.JComponent;
 
@@ -49,6 +48,7 @@ public class Main extends javax.swing.JFrame {
     private FormSupplier formSupplier;
     private FormCustomer formCustomer;
     private FormPembelian formPembelian;
+    private FormMutasikas formMutasikas;
 
 
     public Main() {
@@ -64,6 +64,7 @@ public class Main extends javax.swing.JFrame {
         formPenjualan = new FormPenjualan();
         formSupplier = new FormSupplier();
         formPembelian = new FormPembelian();
+        formMutasikas = new FormMutasikas();
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override
@@ -97,7 +98,7 @@ public class Main extends javax.swing.JFrame {
                     setForm(form3);
                 } else if (index == 15) {
                     // Transaksi - Mutasi Kas
-                    setForm(form3);
+                    setForm(formMutasikas);
                 } else if (index == 19) {
                     // Laporan - Kas
                     setForm(form3);

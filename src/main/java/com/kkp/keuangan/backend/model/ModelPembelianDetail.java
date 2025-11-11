@@ -83,6 +83,19 @@ public class ModelPembelianDetail {
     public void setTotal(double total) {
         this.total = total;
     }
+    public static boolean deleteById(int id) {
+    String sql = "DELETE FROM pembelian_detail WHERE id = ?";
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        int affected = ps.executeUpdate();
+        return affected > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
 
     // insert
     public int insert() throws SQLException {

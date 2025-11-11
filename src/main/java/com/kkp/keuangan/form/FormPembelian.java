@@ -27,6 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -42,13 +43,13 @@ import com.kkp.keuangan.backend.model.ModelPembelianDetail;
 import com.kkp.keuangan.backend.model.ModelSupplier;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RComboBoxUI;
-import com.kkp.keuangan.component.uis.RTextFieldUI;
 import com.kkp.keuangan.swing.ScrollBar;
+import com.toedter.calendar.JDateChooser;
 
 public class FormPembelian extends JPanel {
 
     // ==== HEADER ====
-    private JTextField txtKode, txtPoStatus, txtReturStatus, txtTanggalPembelian, txtTanggalDeadline;
+    private JDateChooser datePembelian;
     private JComboBox<ModelSupplier> cbSupplier;
     private JComboBox<ModelCoa> cbCo;
     private JTextArea taRemark;
@@ -68,7 +69,7 @@ public class FormPembelian extends JPanel {
         initComponents();
         loadSuppliers();
         generateHeaderDefaults();
-        // calcTotal();
+
     }
 
     private void initComponents() {
@@ -97,62 +98,32 @@ public class FormPembelian extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
-        txtKode = new JTextField();
-        txtKode.setUI(new RTextFieldUI());
-        txtPoStatus = new JTextField();
-        txtPoStatus.setUI(new RTextFieldUI());
-        txtReturStatus = new JTextField();
-        txtReturStatus.setUI(new RTextFieldUI());
-        txtTanggalPembelian = new JTextField();
-        txtTanggalPembelian.setUI(new RTextFieldUI());
-        txtTanggalDeadline = new JTextField();
-        txtTanggalDeadline.setUI(new RTextFieldUI());
+        datePembelian = new JDateChooser();
+        datePembelian.setDateFormatString("yyyy-MM-dd");
+        datePembelian.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        datePembelian.setPreferredSize(new java.awt.Dimension(180, 28));
 
         cbSupplier = new JComboBox<>();
         cbSupplier.setUI(new RComboBoxUI());
-        // cbCo = new JComboBox<>(new String[] { "Kas Kecil", "Transfer
-        // Bank", "Cash" });
         cbCo = new JComboBox<>();
         cbCo.setUI(new RComboBoxUI());
 
         taRemark = new JTextArea(3, 20);
         taRemark.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        // Row 1
+        // Row 1 (Tanggal Pembelian, Supplier)
         gbc.gridx = 0;
-        gbc.gridy = 0;
-        formPanel.add(new JLabel("Kode Pembelian"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(txtKode, gbc);
-
-        gbc.gridx = 2;
-        formPanel.add(new JLabel("PO Status"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(txtPoStatus, gbc);
-
-        gbc.gridx = 4;
-        formPanel.add(new JLabel("Retur Status"), gbc);
-        gbc.gridx = 5;
-        formPanel.add(txtReturStatus, gbc);
-
-        // Row 2
-        gbc.gridx = 0;
-        gbc.gridy++;
+        gbc.gridy = 0; // mulai dari 0
         formPanel.add(new JLabel("Tanggal Pembelian"), gbc);
         gbc.gridx = 1;
-        formPanel.add(txtTanggalPembelian, gbc);
+        formPanel.add(datePembelian, gbc);
 
         gbc.gridx = 2;
-        formPanel.add(new JLabel("Tanggal Deadline"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(txtTanggalDeadline, gbc);
-
-        gbc.gridx = 4;
         formPanel.add(new JLabel("Supplier"), gbc);
-        gbc.gridx = 5;
+        gbc.gridx = 3;
         formPanel.add(cbSupplier, gbc);
 
-        // Row 3
+        // Row 2 (Metode Pembayaran, Remark)
         gbc.gridx = 0;
         gbc.gridy++;
         formPanel.add(new JLabel("Metode Pembayaran"), gbc);
@@ -170,14 +141,18 @@ public class FormPembelian extends JPanel {
         // =========================================================
         // 🧩 TABLE DETAIL
         // =========================================================
+
+        // buat model sebagai field (jangan buat lokal yang menutupi field)
         model = new DefaultTableModel(
                 new Object[] { "No", "Nama Barang", "Qty", "Satuan", "Harga/Unit", "Total", "Aksi" }, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
+                // hanya kolom Qty(2), Satuan(3), Harga(4), Aksi(6) yang editable
                 return c == 2 || c == 3 || c == 4 || c == 6;
             }
         };
 
+        // buat table dengan model
         table = new JTable(model);
         table.setRowHeight(28);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -185,12 +160,22 @@ public class FormPembelian extends JPanel {
         table.getTableHeader().setBackground(new Color(230, 230, 230));
         table.setSelectionBackground(new Color(200, 220, 255));
         table.setGridColor(new Color(240, 240, 240));
-        // model.addTableModelListener(e -> calcTotal());
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Button Renderer
-        TableColumn aksiColumn = table.getColumnModel().getColumn(6);
-        aksiColumn.setCellRenderer(new ButtonRenderer());
-        aksiColumn.setCellEditor(new ButtonEditor(new JCheckBox(), this));
+        // Jika ingin menyembunyikan kolom "No" (index 0) cek dulu jumlah kolom
+        if (table.getColumnCount() > 0) {
+            TableColumn col0 = table.getColumnModel().getColumn(0);
+            col0.setMinWidth(0);
+            col0.setMaxWidth(0);
+            col0.setPreferredWidth(0);
+        }
+
+        // Button Renderer/Editor (kolom "Aksi" index 6)
+        if (table.getColumnCount() > 6) {
+            TableColumn aksiColumn = table.getColumnModel().getColumn(6);
+            aksiColumn.setCellRenderer(new ButtonRenderer());
+            aksiColumn.setCellEditor(new ButtonEditor(new JCheckBox(), this));
+        }
 
         JScrollPane spTable = new JScrollPane(table);
         spTable.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
@@ -256,29 +241,9 @@ public class FormPembelian extends JPanel {
     }
 
     private void generateHeaderDefaults() {
-        txtKode.setText(ModelPembelian.generateKode());
-        txtPoStatus.setText("OPEN");
-        txtReturStatus.setText("NONE");
-        txtTanggalPembelian.setText(df.format(new Date()));
-        txtTanggalDeadline.setText(df.format(new Date()));
+        datePembelian.setDate(null);
         taRemark.setText("");
     }
-
-    // private void loadSuppliers() {
-    // cbSupplier.removeAllItems();
-    // cbSupplier.addItem(new SupplierItem(0, "Pilih Supplier"));
-    // try (Connection c = DriverManager.getConnection(DB_URL);
-    // PreparedStatement ps = c.prepareStatement("SELECT id, nama FROM supplier
-    // ORDER BY nama");
-    // ResultSet rs = ps.executeQuery()) {
-    // while (rs.next()) {
-    // cbSupplier.addItem(new SupplierItem(rs.getInt("id"), rs.getString("nama")));
-    // }
-    // } catch (Exception e) {
-    // JOptionPane.showMessageDialog(this, "Gagal memuat supplier: " +
-    // e.getMessage());
-    // }
-    // }
 
     private void loadSuppliers() {
         cbSupplier.removeAllItems();
@@ -309,24 +274,39 @@ public class FormPembelian extends JPanel {
                     d.getSatuan(),
                     d.getHargaUnit(),
                     d.getQty() * d.getHargaUnit(),
-
+                    "Hapus" // kolom aksi
             });
             calcTotal();
         }
     }
 
     private void removeItem() {
-        int row = table.getSelectedRow();
-        if (row >= 0) {
-            model.removeRow(row);
-            calcTotal();
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih item yang ingin dihapus!");
+            return;
         }
+
+        // Delegate to the indexed variant so the table-button editor can call the same
+        // logic
+        removeItem(selectedRow);
     }
 
-    private void removeItem(int row) {
-        if (row >= 0 && row < model.getRowCount()) {
-            model.removeRow(row);
+    private void removeItem(int selectedRow) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Apakah Anda yakin ingin menghapus item ini?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            // Jika kamu ingin menghapus juga dari DB, panggil
+            // ModelPembelianDetail.deleteById(id)
+            // namun saat ini model tabel tidak menyimpan id DB di kolom -> kamu perlu
+            // menyimpan id detail di model jika ingin hapus DB.
+            model.removeRow(selectedRow);
             calcTotal();
+            JOptionPane.showMessageDialog(this, "Item berhasil dihapus!");
         }
     }
 
@@ -357,16 +337,17 @@ public class FormPembelian extends JPanel {
         }
         try {
             ModelPembelian p = new ModelPembelian();
-            p.setKode(txtKode.getText());
-            p.setTanggalPembelian(txtTanggalPembelian.getText());
-            p.setTanggalDeadline(txtTanggalDeadline.getText());
+            Date selectedDate = datePembelian.getDate();
+            if (selectedDate == null) {
+                JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pembelian!");
+                return;
+            }
+            p.setTanggalPembelian(df.format(selectedDate));
+
             p.setSupplierId(s.getId());
             p.setCoaId(((ModelCoa) cbCo.getSelectedItem()).getId());
             p.setTotal(Double.parseDouble(lblGrandTotal.getText()));
-            p.setPoStatus(txtPoStatus.getText());
-            p.setReturStatus(txtReturStatus.getText());
             p.setRemark(taRemark.getText());
-
             PembelianDAO dao = new PembelianDAO();
             int id = dao.insert(p);
 

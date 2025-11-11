@@ -50,7 +50,6 @@ public class Main extends javax.swing.JFrame {
     private FormCustomer formCustomer;
     private FormPembelian formPembelian;
 
-
     public Main() {
         initComponents();
         setBackground(new Color(0, 0, 0, 0));

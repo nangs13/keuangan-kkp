@@ -10,11 +10,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 
 import com.kkp.keuangan.event.EventMenuSelected;
 import com.kkp.keuangan.model.Model_Menu;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.model.Enum.MenuType;
+import com.kkp.keuangan.swing.ModernScrollBarUI;
 
 public class Menu extends javax.swing.JPanel {
 
@@ -34,15 +36,19 @@ public class Menu extends javax.swing.JPanel {
 
     private void init() {
         listMenu1.addItem(new Model_Menu("1", "Dashboard", MenuType.MENU, MenuKey.DASHBOARD));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
 
         listMenu1.addItem(new Model_Menu("", "Mater Data", MenuType.TITLE, MenuKey.TITLE));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
         listMenu1.addItem(new Model_Menu("2", "COA", MenuType.MENU, MenuKey.COA));
         listMenu1.addItem(new Model_Menu("2", "Info Kartu", MenuType.MENU, MenuKey.CARD_INFO));
         listMenu1.addItem(new Model_Menu("2", "Pelanggan", MenuType.MENU, MenuKey.CUSTOMER));
         listMenu1.addItem(new Model_Menu("2", "Supplier", MenuType.MENU, MenuKey.SUPPLIER));
         listMenu1.addItem(new Model_Menu("2", "Produk", MenuType.MENU, MenuKey.PRODUK));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
         
         listMenu1.addItem(new Model_Menu("", "Transaksi", MenuType.TITLE, MenuKey.TITLE));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
         listMenu1.addItem(new Model_Menu("3", "Penjualan", MenuType.MENU, MenuKey.PENJUALAN));
         listMenu1.addItem(new Model_Menu("3", "Monitor Penjualan", MenuType.MENU, MenuKey.MONITOR_PENJUALAN));
         listMenu1.addItem(new Model_Menu("4", "Pembelian", MenuType.MENU, MenuKey.PEMBELIAN));
@@ -51,8 +57,10 @@ public class Menu extends javax.swing.JPanel {
         listMenu1.addItem(new Model_Menu("5", "Monitor Biaya", MenuType.MENU, MenuKey.MONITOR_BIAYA));
         listMenu1.addItem(new Model_Menu("6", "Mutasi Kas", MenuType.MENU, MenuKey.MUTASI_KAS));
         listMenu1.addItem(new Model_Menu("6", "Monitor Mutasi Kas", MenuType.MENU, MenuKey.MONITOR_MUTASI_KAS));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
 
         listMenu1.addItem(new Model_Menu("", "Laporan", MenuType.TITLE, MenuKey.TITLE));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
         listMenu1.addItem(new Model_Menu("6", "Kas", MenuType.MENU, MenuKey.LAP_KAS));
         listMenu1.addItem(new Model_Menu("6", "Neraca", MenuType.MENU, MenuKey.LAP_NERACA));
         listMenu1.addItem(new Model_Menu("7", "Laba Rugi", MenuType.MENU, MenuKey.LAP_LABA_RUGI));
@@ -66,6 +74,48 @@ public class Menu extends javax.swing.JPanel {
         panelMoving = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         listMenu1 = new com.kkp.keuangan.swing.ListMenu<>();
+        listMenu1.setOpaque(true);
+        listMenu1.setBorder(null);
+
+        JScrollPane scrollPane = new JScrollPane(listMenu1);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // TERAPKAN MODERN SCROLLBAR
+        scrollPane.getVerticalScrollBar().setUI(new ModernScrollBarUI());
+        scrollPane.getVerticalScrollBar().setPreferredSize(new java.awt.Dimension(12, Integer.MAX_VALUE));
+
+        // Opsional: muncul hanya saat hover (macOS style)
+        scrollPane.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                scrollPane.getVerticalScrollBar().setVisible(true);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (!scrollPane.getVerticalScrollBar().getBounds().contains(e.getPoint())) {
+                    // Delay hide agar tidak kedip
+                    javax.swing.Timer timer = new javax.swing.Timer(1000, ev -> {
+                        if (!scrollPane.getVerticalScrollBar().isShowing()) return;
+                        java.awt.Point p = java.awt.MouseInfo.getPointerInfo().getLocation();
+                        java.awt.Rectangle bounds = scrollPane.getVerticalScrollBar().getBounds();
+                        java.awt.Point loc = scrollPane.getLocationOnScreen();
+                        if (!new java.awt.Rectangle(loc.x + bounds.x, loc.y + bounds.y, bounds.width, bounds.height).contains(p)) {
+                            scrollPane.getVerticalScrollBar().setVisible(false);
+                        }
+                    });
+                    timer.setRepeats(false);
+                    timer.start();
+                }
+            }
+        });
+
+        // Mulai: scrollbar tidak terlihat
+        scrollPane.getVerticalScrollBar().setVisible(false);
 
         panelMoving.setOpaque(false);
 
@@ -96,14 +146,14 @@ public class Menu extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panelMoving, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(listMenu1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(panelMoving, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15)
-                .addComponent(listMenu1, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
+                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

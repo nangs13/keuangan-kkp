@@ -1,8 +1,25 @@
 package com.kkp.keuangan.component;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+import com.kkp.keuangan.component.uis.RButtonUI;
 
 public class Header extends javax.swing.JPanel {
 
@@ -19,9 +36,9 @@ public class Header extends javax.swing.JPanel {
         JPanel windowButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         windowButtons.setOpaque(false);
 
-        btnMinimize = makeButton("_");
-        btnMaximize = makeButton("□");
-        btnClose = makeButton("X");
+        btnMinimize = makeButton("−", new Color(120, 120, 120));   // Abu
+        btnMaximize = makeButton("□", new Color(120, 120, 120));   // Abu
+        btnClose    = makeButton("×", new Color(232, 17, 35));     // MERAH (Windows 11)
 
         windowButtons.add(btnMinimize);
         windowButtons.add(btnMaximize);
@@ -32,11 +49,11 @@ public class Header extends javax.swing.JPanel {
         JPanel leftPanel = new JPanel();
         leftPanel.setOpaque(false);
         leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        leftPanel.add(jLabel1);
-        leftPanel.add(searchText1);
+        // leftPanel.add(jLabel1);
+        // leftPanel.add(searchText1);
 
         add(leftPanel, BorderLayout.CENTER);
-        add(jLabel2, BorderLayout.WEST);
+        // add(jLabel2, BorderLayout.WEST);
         add(windowButtons, BorderLayout.EAST);
 
         // Aksi tombol window
@@ -79,24 +96,46 @@ public class Header extends javax.swing.JPanel {
         });
     }
 
-    private JButton makeButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(new Color(60, 60, 60));
+    private JButton makeButton(String icon, Color hoverColor) {
+        JButton btn = new JButton();
+        btn.setUI(new RButtonUI());
+        btn.setPreferredSize(new Dimension(46, 32));
+        btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setPreferredSize(new Dimension(40, 25));
+        btn.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+
+        // Set ikon (bisa pakai text atau SVG nanti)
+        btn.setText(icon);
+
+        // Hover effect
+        Color normalBg = new Color(0, 0, 0, 0); // transparan
+        btn.setBackground(normalBg);
 
         btn.addMouseListener(new MouseAdapter() {
+            private final Timer timer = new Timer(10, null);
+            private int alpha = 0;
+            private final int targetAlpha;
+            private final Color baseColor;
+
+            {
+                baseColor = hoverColor;
+                targetAlpha = hoverColor.getAlpha();
+                timer.addActionListener(e -> {
+                    alpha = Math.min(255, Math.max(0, alpha + (btn.getMousePosition() != null ? 25 : -25)));
+                    btn.setBackground(new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), alpha));
+                    if (alpha == 0 || alpha == targetAlpha) timer.stop();
+                });
+            }
+
             @Override
             public void mouseEntered(MouseEvent e) {
-                btn.setBackground(new Color(100, 100, 100));
+                timer.start();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                btn.setBackground(new Color(60, 60, 60));
+                timer.start();
             }
         });
 

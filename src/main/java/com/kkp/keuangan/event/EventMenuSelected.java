@@ -1,6 +1,7 @@
 package com.kkp.keuangan.event;
 
-public interface EventMenuSelected {
+import com.kkp.keuangan.model.Enum.MenuKey;
 
-    public void selected(int index);
+public interface EventMenuSelected {
+    void selected(MenuKey key);
 }

@@ -7,10 +7,13 @@ package com.kkp.keuangan.main;
 
 import java.awt.Color;
 import javax.swing.JComponent;
+
 import com.kkp.keuangan.event.EventMenuSelected;
 import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormCoa;
 import com.kkp.keuangan.form.FormCustomer;
+import com.kkp.keuangan.form.FormMutasikas;
+import com.kkp.keuangan.form.FormPembelian;
 import com.kkp.keuangan.form.FormPenjualan;
 import com.kkp.keuangan.form.FormProduk;
 import com.kkp.keuangan.form.FormSupplier;
@@ -18,15 +21,9 @@ import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
-import com.kkp.keuangan.form.FormProduk;
-import com.kkp.keuangan.form.FormCoa;
-import com.kkp.keuangan.form.FormCardInfo;
-import com.kkp.keuangan.form.FormPenjualan;
-import com.kkp.keuangan.form.FormSupplier;
-import com.kkp.keuangan.form.FormPembelian;
-import com.kkp.keuangan.form.FormMutasikas;
-import java.awt.Color;
-import javax.swing.JComponent;
+import com.kkp.keuangan.model.Enum.MenuKey;
+import com.kkp.keuangan.monitor.MonitorPenjualan;
+
 
 /**
  *
@@ -41,6 +38,8 @@ public class Main extends javax.swing.JFrame {
     private Form_1 form1;
     private Form_2 form2;
     private Form_3 form3;
+
+    // Form Page
     private FormProduk formProduk;
     private FormCoa formCoa;
     private FormCardInfo formCardInfo;
@@ -50,6 +49,11 @@ public class Main extends javax.swing.JFrame {
     private FormPembelian formPembelian;
     private FormMutasikas formMutasikas;
 
+    // Monitor Page
+    private MonitorPenjualan monitorPenjualan;
+
+    // Report Page
+
     public Main() {
         initComponents();
         setBackground(new Color(0, 0, 0, 0));
@@ -57,6 +61,8 @@ public class Main extends javax.swing.JFrame {
         form1 = new Form_1();
         form2 = new Form_2();
         form3 = new Form_3();
+
+        // Form Page
         formProduk = new FormProduk();
         formCoa = new FormCoa();
         formCardInfo = new FormCardInfo();
@@ -64,55 +70,67 @@ public class Main extends javax.swing.JFrame {
         formSupplier = new FormSupplier();
         formPembelian = new FormPembelian();
         formMutasikas = new FormMutasikas();
+
+        // Monitor Page
+        monitorPenjualan = new MonitorPenjualan();
+        // Report Page
+
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override
-            public void selected(int index) {
-                if (index == 0) {
-                    // Dashboard
-                    setForm(home);
-                } else if (index == 4) {
-                    // Master Data - COA
-                    setForm(formCoa);
-                } else if (index == 5) {
-                    // Master Data - Card Info
-                    setForm(formCardInfo);
-                } else if (index == 6) {
-                    // Master Data - Customer
-                    setForm(formCustomer);
-                } else if (index == 7) {
-                    // Master Data - Supplier
-                    setForm(formSupplier);
-                } else if (index == 8) {
-                    // Master Data - Produk
-                    setForm(formProduk);
-                } else if (index == 12) {
-                    // Transaksi - Penjualan
-                    setForm(formPenjualan);
-                } else if (index == 13) {
-                    // Transaksi - Pembelian
-                    setForm(formPembelian);
-                } else if (index == 14) {
-                    // Transaksi - Biaya
-                    setForm(form3);
-                } else if (index == 15) {
-                    // Transaksi - Mutasi Kas
-                    setForm(formMutasikas);
-                } else if (index == 19) {
-                    // Laporan - Kas
-                    setForm(form3);
-                } else if (index == 20) {
-                    // Laporan - Neraca
-                    setForm(form3);
-                } else if (index == 21) {
-                    // Laporan - Laba Rugi
-                    setForm(form3);
-                } else if (index == 22) {
-                    // Laporan - Arus Kas
-                    setForm(form3);
+            public void selected(MenuKey key) {
+                switch (key) {
+                    case DASHBOARD:
+                        setForm(home);
+                        break;
+                    case COA:
+                        setForm(formCoa);
+                        break;
+                    case CARD_INFO:
+                        setForm(formCardInfo);
+                        break;
+                    case CUSTOMER:
+                        setForm(formCustomer);
+                        break;
+                    case SUPPLIER:
+                        setForm(formSupplier);
+                        break;
+                    case PRODUK:
+                        setForm(formProduk);
+                        break;
+                    case PENJUALAN:
+                        setForm(formPenjualan);
+                        break;
+                    case PEMBELIAN:
+                        setForm(formPembelian);
+                        break;
+                    case BIAYA:
+                        setForm(form3);
+                        break;
+                    case MUTASI_KAS:
+                        setForm(formMutasikas);
+                        break;
+                    case LAP_KAS:
+                        setForm(form3);
+                        break;
+                    case LAP_NERACA:
+                        setForm(form3);
+                        break;
+                    case LAP_LABA_RUGI:
+                        setForm(form3);
+                        break;
+                    case LAP_ARUS_KAS:
+                        setForm(form3);
+                        break;
+                    case MONITOR_PENJUALAN:
+                        setForm(monitorPenjualan);
+                        break;
+                    default:
+                        // For empty
+                        break;
                 }
             }
-        });
+        });        
         // set when system open start with home form
         setForm(new Form_Home());
     }

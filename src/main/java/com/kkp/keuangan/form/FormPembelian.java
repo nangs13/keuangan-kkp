@@ -62,7 +62,6 @@ public class FormPembelian extends JPanel {
     private JButton btnTambahItem, btnHapusItem, btnSimpan, btnRefreshSupplier;
     private JLabel lblGrandTotal;
 
-    private static final String DB_URL = "jdbc:sqlite:pos_app.db";
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     public FormPembelian() {

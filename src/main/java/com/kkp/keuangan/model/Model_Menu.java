@@ -3,6 +3,9 @@ package com.kkp.keuangan.model;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import com.kkp.keuangan.model.Enum.MenuKey;
+import com.kkp.keuangan.model.Enum.MenuType;
+
 public class Model_Menu {
 
     public String getIcon() {
@@ -28,11 +31,20 @@ public class Model_Menu {
     public void setType(MenuType type) {
         this.type = type;
     }
+    
+    public MenuKey getKey() {
+        return key;
+    }
 
-    public Model_Menu(String icon, String name, MenuType type) {
+    public void setKey(MenuKey key) {
+        this.key = key;
+    }
+
+    public Model_Menu(String icon, String name, MenuType type, MenuKey key) {
         this.icon = icon;
         this.name = name;
         this.type = type;
+        this.key = key;
     }
 
     public Model_Menu() {
@@ -41,12 +53,9 @@ public class Model_Menu {
     private String icon;
     private String name;
     private MenuType type;
+    private MenuKey key;
 
     public Icon toIcon() {
         return new ImageIcon(getClass().getResource("/com/kkp/keuangan/icon/" + icon + ".png"));
-    }
-
-    public static enum MenuType {
-        TITLE, MENU, EMPTY
     }
 }

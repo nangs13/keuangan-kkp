@@ -1,11 +1,13 @@
 package com.kkp.keuangan.swing;
 
-import com.kkp.keuangan.model.Model_Menu;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+
+import com.kkp.keuangan.model.Model_Menu;
+import com.kkp.keuangan.model.Enum.MenuType;
 
 public class MenuItem extends javax.swing.JPanel {
 
@@ -15,10 +17,10 @@ public class MenuItem extends javax.swing.JPanel {
     public MenuItem(Model_Menu data) {
         initComponents();
         setOpaque(false);
-        if (data.getType() == Model_Menu.MenuType.MENU) {
+        if (data.getType() == MenuType.MENU) {
             lbIcon.setIcon(data.toIcon());
             lbName.setText(data.getName());
-        } else if (data.getType() == Model_Menu.MenuType.TITLE) {
+        } else if (data.getType() == MenuType.TITLE) {
             lbIcon.setText(data.getName());
             lbIcon.setFont(new Font("sansserif", 1, 12));
             lbName.setVisible(false);

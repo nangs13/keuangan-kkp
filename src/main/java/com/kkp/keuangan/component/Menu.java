@@ -13,6 +13,8 @@ import javax.swing.JFrame;
 
 import com.kkp.keuangan.event.EventMenuSelected;
 import com.kkp.keuangan.model.Model_Menu;
+import com.kkp.keuangan.model.Enum.MenuKey;
+import com.kkp.keuangan.model.Enum.MenuType;
 
 public class Menu extends javax.swing.JPanel {
 
@@ -31,32 +33,30 @@ public class Menu extends javax.swing.JPanel {
     }
 
     private void init() {
-        listMenu1.addItem(new Model_Menu("1", "Dashboard", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
+        listMenu1.addItem(new Model_Menu("1", "Dashboard", MenuType.MENU, MenuKey.DASHBOARD));
 
-        listMenu1.addItem(new Model_Menu("", "Mater Data", Model_Menu.MenuType.TITLE));
-        listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
-        listMenu1.addItem(new Model_Menu("2", "COA", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("2", "Info Kartu", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("2", "Pelanggan", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("2", "Supplier", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("2", "Produk", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
+        listMenu1.addItem(new Model_Menu("", "Mater Data", MenuType.TITLE, MenuKey.TITLE));
+        listMenu1.addItem(new Model_Menu("2", "COA", MenuType.MENU, MenuKey.COA));
+        listMenu1.addItem(new Model_Menu("2", "Info Kartu", MenuType.MENU, MenuKey.CARD_INFO));
+        listMenu1.addItem(new Model_Menu("2", "Pelanggan", MenuType.MENU, MenuKey.CUSTOMER));
+        listMenu1.addItem(new Model_Menu("2", "Supplier", MenuType.MENU, MenuKey.SUPPLIER));
+        listMenu1.addItem(new Model_Menu("2", "Produk", MenuType.MENU, MenuKey.PRODUK));
         
-        listMenu1.addItem(new Model_Menu("", "Transaksi", Model_Menu.MenuType.TITLE));
-        listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
-        listMenu1.addItem(new Model_Menu("3", "Penjualan", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("4", "Pembelian", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("5", "Biaya", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("6", "Mutasi Kas", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("", " ", Model_Menu.MenuType.EMPTY));
+        listMenu1.addItem(new Model_Menu("", "Transaksi", MenuType.TITLE, MenuKey.TITLE));
+        listMenu1.addItem(new Model_Menu("3", "Penjualan", MenuType.MENU, MenuKey.PENJUALAN));
+        listMenu1.addItem(new Model_Menu("3", "Monitor Penjualan", MenuType.MENU, MenuKey.MONITOR_PENJUALAN));
+        listMenu1.addItem(new Model_Menu("4", "Pembelian", MenuType.MENU, MenuKey.PEMBELIAN));
+        listMenu1.addItem(new Model_Menu("4", "Monitor Pembelian", MenuType.MENU, MenuKey.MONITOR_PEMBELIAN));
+        listMenu1.addItem(new Model_Menu("5", "Biaya", MenuType.MENU, MenuKey.BIAYA));
+        listMenu1.addItem(new Model_Menu("5", "Monitor Biaya", MenuType.MENU, MenuKey.MONITOR_BIAYA));
+        listMenu1.addItem(new Model_Menu("6", "Mutasi Kas", MenuType.MENU, MenuKey.MUTASI_KAS));
+        listMenu1.addItem(new Model_Menu("6", "Monitor Mutasi Kas", MenuType.MENU, MenuKey.MONITOR_MUTASI_KAS));
 
-        listMenu1.addItem(new Model_Menu("", "Laporan", Model_Menu.MenuType.TITLE));
-        listMenu1.addItem(new Model_Menu("6", "Kas", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("6", "Neraca", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("7", "Laba Rugi", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("8", "Arus Kas", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
+        listMenu1.addItem(new Model_Menu("", "Laporan", MenuType.TITLE, MenuKey.TITLE));
+        listMenu1.addItem(new Model_Menu("6", "Kas", MenuType.MENU, MenuKey.LAP_KAS));
+        listMenu1.addItem(new Model_Menu("6", "Neraca", MenuType.MENU, MenuKey.LAP_NERACA));
+        listMenu1.addItem(new Model_Menu("7", "Laba Rugi", MenuType.MENU, MenuKey.LAP_LABA_RUGI));
+        listMenu1.addItem(new Model_Menu("8", "Arus Kas", MenuType.MENU, MenuKey.LAP_ARUS_KAS));
     }
 
     @SuppressWarnings("unchecked")

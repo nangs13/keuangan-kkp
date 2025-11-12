@@ -1,20 +1,110 @@
 package com.kkp.keuangan.component;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 public class Header extends javax.swing.JPanel {
+
+    private JButton btnMinimize;
+    private JButton btnMaximize;
+    private JButton btnClose;
+    private Point initialClick;
 
     public Header() {
         initComponents();
         setOpaque(false);
+
+        // Tambahkan panel tombol ke kanan atas
+        JPanel windowButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        windowButtons.setOpaque(false);
+
+        btnMinimize = makeButton("_");
+        btnMaximize = makeButton("□");
+        btnClose = makeButton("X");
+
+        windowButtons.add(btnMinimize);
+        windowButtons.add(btnMaximize);
+        windowButtons.add(btnClose);
+
+        // Ganti layout utama sedikit biar tombol di kanan atas
+        setLayout(new BorderLayout());
+        JPanel leftPanel = new JPanel();
+        leftPanel.setOpaque(false);
+        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        leftPanel.add(jLabel1);
+        leftPanel.add(searchText1);
+
+        add(leftPanel, BorderLayout.CENTER);
+        add(jLabel2, BorderLayout.WEST);
+        add(windowButtons, BorderLayout.EAST);
+
+        // Aksi tombol window
+        btnMinimize.addActionListener(e -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            frame.setState(Frame.ICONIFIED);
+        });
+
+        btnMaximize.addActionListener(e -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            if (frame.getExtendedState() == Frame.MAXIMIZED_BOTH) {
+                frame.setExtendedState(Frame.NORMAL);
+            } else {
+                frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            }
+        });
+
+        btnClose.addActionListener(e -> {
+            System.exit(0);
+        });
+
+        // Tambahkan kemampuan drag window
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                initialClick = e.getPoint();
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(Header.this);
+                int thisX = frame.getLocation().x;
+                int thisY = frame.getLocation().y;
+                int xMoved = e.getX() - initialClick.x;
+                int yMoved = e.getY() - initialClick.y;
+                frame.setLocation(thisX + xMoved, thisY + yMoved);
+            }
+        });
+    }
+
+    private JButton makeButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(new Color(60, 60, 60));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        btn.setPreferredSize(new Dimension(40, 25));
+
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(new Color(100, 100, 100));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(new Color(60, 60, 60));
+            }
+        });
+
+        return btn;
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         jLabel1 = new javax.swing.JLabel();
         searchText1 = new com.kkp.keuangan.swing.SearchText();
         jLabel2 = new javax.swing.JLabel();
@@ -22,30 +112,9 @@ public class Header extends javax.swing.JPanel {
         setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kkp/keuangan/icon/search.png"))); // NOI18N
-
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kkp/keuangan/icon/menu.png"))); // NOI18N
         jLabel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(searchText1, javax.swing.GroupLayout.DEFAULT_SIZE, 558, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(searchText1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     @Override
     protected void paintComponent(Graphics grphcs) {
@@ -58,9 +127,9 @@ public class Header extends javax.swing.JPanel {
         super.paintComponent(grphcs);
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private com.kkp.keuangan.swing.SearchText searchText1;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 }

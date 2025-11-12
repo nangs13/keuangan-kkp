@@ -6,6 +6,7 @@
 package com.kkp.keuangan.main;
 
 import java.awt.Color;
+
 import javax.swing.JComponent;
 
 import com.kkp.keuangan.event.EventMenuSelected;
@@ -67,6 +68,7 @@ public class Main extends javax.swing.JFrame {
         formCoa = new FormCoa();
         formCardInfo = new FormCardInfo();
         formPenjualan = new FormPenjualan();
+        formCustomer = new FormCustomer();
         formSupplier = new FormSupplier();
         formPembelian = new FormPembelian();
         formMutasikas = new FormMutasikas();

@@ -35,36 +35,49 @@ public class Menu extends javax.swing.JPanel {
     }
 
     private void init() {
-        listMenu1.addItem(new Model_Menu("1", "Dashboard", MenuType.MENU, MenuKey.DASHBOARD));
+        // =========================
+        // 📂 MENU APLIKASI UTAMA
+        // =========================
+        listMenu1.addItem(new Model_Menu("HOME", "Dashboard", MenuType.MENU, MenuKey.DASHBOARD));
         listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
 
-        listMenu1.addItem(new Model_Menu("", "Mater Data", MenuType.TITLE, MenuKey.TITLE));
+        // =========================
+        // 📘 MASTER DATA
+        // =========================
+        listMenu1.addItem(new Model_Menu("", "Master Data", MenuType.TITLE, MenuKey.TITLE));
         listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
-        listMenu1.addItem(new Model_Menu("2", "COA", MenuType.MENU, MenuKey.COA));
-        listMenu1.addItem(new Model_Menu("2", "Info Kartu", MenuType.MENU, MenuKey.CARD_INFO));
-        listMenu1.addItem(new Model_Menu("2", "Pelanggan", MenuType.MENU, MenuKey.CUSTOMER));
-        listMenu1.addItem(new Model_Menu("2", "Supplier", MenuType.MENU, MenuKey.SUPPLIER));
-        listMenu1.addItem(new Model_Menu("2", "Produk", MenuType.MENU, MenuKey.PRODUK));
+        listMenu1.addItem(new Model_Menu("BOOK", "COA", MenuType.MENU, MenuKey.COA));
+        listMenu1.addItem(new Model_Menu("ID_CARD", "Info Kartu", MenuType.MENU, MenuKey.CARD_INFO));
+        listMenu1.addItem(new Model_Menu("USERS", "Pelanggan", MenuType.MENU, MenuKey.CUSTOMER));
+        listMenu1.addItem(new Model_Menu("TRUCK", "Supplier", MenuType.MENU, MenuKey.SUPPLIER));
+        listMenu1.addItem(new Model_Menu("BOX", "Produk", MenuType.MENU, MenuKey.PRODUK));
         listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
-        
+
+        // =========================
+        // 💵 TRANSAKSI
+        // =========================
         listMenu1.addItem(new Model_Menu("", "Transaksi", MenuType.TITLE, MenuKey.TITLE));
         listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
-        listMenu1.addItem(new Model_Menu("3", "Penjualan", MenuType.MENU, MenuKey.PENJUALAN));
-        listMenu1.addItem(new Model_Menu("3", "Monitor Penjualan", MenuType.MENU, MenuKey.MONITOR_PENJUALAN));
-        listMenu1.addItem(new Model_Menu("4", "Pembelian", MenuType.MENU, MenuKey.PEMBELIAN));
-        listMenu1.addItem(new Model_Menu("4", "Monitor Pembelian", MenuType.MENU, MenuKey.MONITOR_PEMBELIAN));
-        listMenu1.addItem(new Model_Menu("5", "Biaya", MenuType.MENU, MenuKey.BIAYA));
-        listMenu1.addItem(new Model_Menu("5", "Monitor Biaya", MenuType.MENU, MenuKey.MONITOR_BIAYA));
-        listMenu1.addItem(new Model_Menu("6", "Mutasi Kas", MenuType.MENU, MenuKey.MUTASI_KAS));
-        listMenu1.addItem(new Model_Menu("6", "Monitor Mutasi Kas", MenuType.MENU, MenuKey.MONITOR_MUTASI_KAS));
+        listMenu1.addItem(new Model_Menu("CASH_REGISTER", "Penjualan", MenuType.MENU, MenuKey.PENJUALAN));
+        listMenu1.addItem(new Model_Menu("CHART_LINE", "Monitor Penjualan", MenuType.MENU, MenuKey.MONITOR_PENJUALAN));
+        listMenu1.addItem(new Model_Menu("SHOPPING_CART", "Pembelian", MenuType.MENU, MenuKey.PEMBELIAN));
+        listMenu1.addItem(new Model_Menu("CHART_BAR", "Monitor Pembelian", MenuType.MENU, MenuKey.MONITOR_PEMBELIAN));
+        listMenu1.addItem(new Model_Menu("MONEY_BILL_WAVE", "Biaya", MenuType.MENU, MenuKey.BIAYA));
+        listMenu1.addItem(new Model_Menu("FILE_INVOICE_DOLLAR", "Monitor Biaya", MenuType.MENU, MenuKey.MONITOR_BIAYA));
+        listMenu1.addItem(new Model_Menu("EXCHANGE_ALT", "Mutasi Kas", MenuType.MENU, MenuKey.MUTASI_KAS));
+        listMenu1.addItem(new Model_Menu("CLIPBOARD_LIST", "Monitor Mutasi Kas", MenuType.MENU, MenuKey.MONITOR_MUTASI_KAS));
         listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
 
+        // =========================
+        // 📊 LAPORAN
+        // =========================
         listMenu1.addItem(new Model_Menu("", "Laporan", MenuType.TITLE, MenuKey.TITLE));
         listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
-        listMenu1.addItem(new Model_Menu("6", "Kas", MenuType.MENU, MenuKey.LAP_KAS));
-        listMenu1.addItem(new Model_Menu("6", "Neraca", MenuType.MENU, MenuKey.LAP_NERACA));
-        listMenu1.addItem(new Model_Menu("7", "Laba Rugi", MenuType.MENU, MenuKey.LAP_LABA_RUGI));
-        listMenu1.addItem(new Model_Menu("8", "Arus Kas", MenuType.MENU, MenuKey.LAP_ARUS_KAS));
+        listMenu1.addItem(new Model_Menu("WALLET", "Kas", MenuType.MENU, MenuKey.LAP_KAS));
+        listMenu1.addItem(new Model_Menu("BALANCE_SCALE", "Neraca", MenuType.MENU, MenuKey.LAP_NERACA));
+        listMenu1.addItem(new Model_Menu("CHART_AREA", "Laba Rugi", MenuType.MENU, MenuKey.LAP_LABA_RUGI));
+        listMenu1.addItem(new Model_Menu("STREAM", "Arus Kas", MenuType.MENU, MenuKey.LAP_ARUS_KAS));
+        listMenu1.addItem(new Model_Menu("", "", MenuType.EMPTY, MenuKey.EMPTY));
     }
 
     @SuppressWarnings("unchecked")

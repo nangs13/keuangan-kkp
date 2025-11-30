@@ -4,20 +4,34 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Frame;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+import com.kkp.keuangan.backend.dao.CustomerDAO;
+import com.kkp.keuangan.backend.dao.PenjualanDAO;
+import com.kkp.keuangan.backend.model.ModelCustomer;
+import com.kkp.keuangan.backend.model.ModelPenjualan;
+import com.kkp.keuangan.backend.model.ModelPenjualanDetail;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RTextFieldUI;
+import com.kkp.keuangan.monitor.component.ButtonEditor;
+import com.kkp.keuangan.monitor.component.ButtonRenderer;
 import com.kkp.keuangan.swing.ScrollBar;
 
 public class MonitorPenjualan extends JPanel {
@@ -78,12 +92,12 @@ public class MonitorPenjualan extends JPanel {
         // TABLE PENJUALAN
         // -------------------------
         model = new DefaultTableModel(
-                new Object[]{"ID", "Tanggal", "Customer", "Total", "Status"}, 0
+                new Object[]{"ID", "Tanggal", "Customer", "Total", "Aksi"}, 0
         ) {
             @Override
-            public boolean isCellEditable(int row, int col) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) {
+                return column == 4;
+            }        
         };
 
         table = new JTable(model);
@@ -93,6 +107,11 @@ public class MonitorPenjualan extends JPanel {
         table.getTableHeader().setBackground(new Color(230, 230, 230));
         table.setSelectionBackground(new Color(200, 220, 255));
         table.setGridColor(new Color(240, 240, 240));
+        table.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JCheckBox(), table));
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);
+        table.getColumnModel().getColumn(4).setMaxWidth(80);
+        table.getColumnModel().getColumn(4).setMinWidth(60);
 
         spTable = new JScrollPane(table);
         spTable.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
@@ -134,53 +153,123 @@ public class MonitorPenjualan extends JPanel {
     // METHOD DATA
     // -------------------------
     private void loadAllData() {
-        // contoh dummy data
         allData.clear();
-        for (int i = 1; i <= 105; i++) {
-            allData.add(new Object[]{i, "2025-11-" + ((i % 30) + 1), "Customer " + i, (i * 50000), "Selesai"});
+
+        PenjualanDAO dao = new PenjualanDAO();
+        CustomerDAO customerDAO = new CustomerDAO();
+
+        List<ModelPenjualan> list = dao.findAll();
+
+        DateTimeFormatter dbFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter uiFmt = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
+
+        for (ModelPenjualan p : list) {
+
+            String tglUI = "";
+            try {
+                LocalDate ld = LocalDate.parse(p.getTanggal(), dbFmt);
+                tglUI = ld.format(uiFmt);
+            } catch (Exception e) {
+                tglUI = p.getTanggal();
+            }
+
+            ModelCustomer c = customerDAO.findById(p.getCustomerId());
+            String customerName = (c != null) ? c.getNama() : "Unknown (" + p.getCustomerId() + ")";
+
+            allData.add(new Object[]{
+                    p.getId(),
+                    tglUI,
+                    customerName,
+                    p.getTotalHarga(),
+            });
         }
+
         totalRows = allData.size();
     }
 
     private void refreshTable() {
         model.setRowCount(0);
-        int start = (currentPage - 1) * rowsPerPage;
-        int end = Math.min(start + rowsPerPage, totalRows);
-
-        for (int i = start; i < end; i++) {
-            model.addRow(allData.get(i));
+    
+        PenjualanDAO dao = new PenjualanDAO();
+        CustomerDAO customerDAO = new CustomerDAO();
+    
+        int offset = (currentPage - 1) * rowsPerPage;
+        List<ModelPenjualan> pageData = dao.findPage(rowsPerPage, offset);
+    
+        DateTimeFormatter dbFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter uiFmt = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
+    
+        for (ModelPenjualan p : pageData) {
+    
+            // format tanggal
+            String tglUI;
+            try {
+                LocalDate ld = LocalDate.parse(p.getTanggal(), dbFmt);
+                tglUI = ld.format(uiFmt);
+            } catch (Exception e) {
+                tglUI = p.getTanggal();
+            }
+    
+            // ambil customer name
+            ModelCustomer c = customerDAO.findById(p.getCustomerId());
+            String customerName = (c != null) ? c.getNama() : ("ID " + p.getCustomerId());
+    
+            model.addRow(new Object[]{
+                    p.getId(),
+                    tglUI,
+                    customerName,
+                    p.getTotalHarga(),
+            });
         }
-
+    
         btnPrev.setEnabled(currentPage > 1);
-        btnNext.setEnabled(end < totalRows);
-    }
+        btnNext.setEnabled(offset + rowsPerPage < totalRows);
+    }    
 
     private void searchData() {
         String keyword = txtSearch.getText().trim().toLowerCase();
+        PenjualanDAO dao = new PenjualanDAO();
+        CustomerDAO customerDAO = new CustomerDAO();
+    
         if (keyword.isEmpty()) {
             refreshData();
             return;
         }
-
-        List<Object[]> filtered = new ArrayList<>();
-        for (Object[] row : allData) {
-            String customer = row[2].toString().toLowerCase();
-            String status = row[4].toString().toLowerCase();
-            if (customer.contains(keyword) || status.contains(keyword)) {
-                filtered.add(row);
-            }
-        }
-
+    
+        List<ModelPenjualan> list = dao.search(keyword);
         model.setRowCount(0);
-        for (Object[] row : filtered) {
-            model.addRow(row);
+    
+        DateTimeFormatter dbFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter uiFmt = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
+    
+        for (ModelPenjualan p : list) {
+    
+            String tglUI;
+            try {
+                LocalDate ld = LocalDate.parse(p.getTanggal(), dbFmt);
+                tglUI = ld.format(uiFmt);
+            } catch (Exception e) {
+                tglUI = p.getTanggal();
+            }
+    
+            ModelCustomer c = customerDAO.findById(p.getCustomerId());
+            String customerName = (c != null) ? c.getNama() : ("ID " + p.getCustomerId());
+    
+            model.addRow(new Object[]{
+                    p.getId(),
+                    tglUI,
+                    customerName,
+                    p.getTotalHarga(),
+            });
         }
-
+    
         btnPrev.setEnabled(false);
         btnNext.setEnabled(false);
-    }
+    }    
 
     private void refreshData() {
+        PenjualanDAO dao = new PenjualanDAO();
+        totalRows = dao.countAll();   // ambil total data dari DB
         currentPage = 1;
         refreshTable();
     }

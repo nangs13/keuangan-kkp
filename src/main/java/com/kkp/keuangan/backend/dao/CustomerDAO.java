@@ -49,7 +49,7 @@ public class CustomerDAO {
         }
     }
 
-    public List<ModelCustomer> findAll() {
+    public static List<ModelCustomer> findAll() {
         List<ModelCustomer> list = new ArrayList<>();
         String sql = "SELECT * FROM customer ORDER BY id DESC";
         try (Connection conn = Database.getConnection();

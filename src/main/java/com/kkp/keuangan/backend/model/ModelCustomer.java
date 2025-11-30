@@ -28,4 +28,9 @@ public class ModelCustomer {
     public void setId(int id) { this.id = id; }
     public void setNama(String nama) { this.nama = nama; }
     public void setHutang(double hutang) { this.hutang = hutang; }
+
+    @Override
+    public String toString() {
+        return nama; // tampilkan kode + nama
+    }
 }

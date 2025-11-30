@@ -1,11 +1,17 @@
 package com.kkp.keuangan.form;
 
+import com.kkp.keuangan.backend.dao.CoaDAO;
 import com.kkp.keuangan.backend.dao.PenjualanDAO;
+import com.kkp.keuangan.backend.dao.SupplierDAO;
+import com.kkp.keuangan.backend.model.ModelCoa;
 import com.kkp.keuangan.backend.model.ModelPenjualan;
 import com.kkp.keuangan.backend.model.ModelPenjualanDetail;
+import com.kkp.keuangan.backend.model.ModelSupplier;
 import com.kkp.keuangan.form.dialog.DialogPilihProduk;
 import com.kkp.keuangan.component.uis.*;
 import com.kkp.keuangan.swing.ScrollBar;
+import com.toedter.calendar.JDateChooser;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -17,8 +23,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.kkp.keuangan.backend.dao.CustomerDAO;
+import com.kkp.keuangan.backend.model.ModelCustomer;
 
 public class FormPenjualan extends JPanel {
 
@@ -28,6 +38,10 @@ public class FormPenjualan extends JPanel {
     private JButton btnTambahProduk, btnSimpan, btnBatal;
     private final PenjualanDAO dao = new PenjualanDAO();
     private boolean isUpdating = false;
+    private JDateChooser datePenjualan;
+    private JComboBox<ModelCustomer> cbCustomer;
+    private JComboBox<ModelCoa> cbCoa;
+    private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     public FormPenjualan() {
         initComponents();
@@ -48,6 +62,44 @@ public class FormPenjualan extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.add(lblTitle, BorderLayout.WEST);
+
+        // =========================================================
+        // 🧩 HEADER FORM
+        // =========================================================
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        datePenjualan = new JDateChooser();
+        datePenjualan.setDateFormatString("yyyy-MM-dd");
+        datePenjualan.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        datePenjualan.setPreferredSize(new java.awt.Dimension(180, 28));
+
+        cbCustomer = new JComboBox<>();
+        cbCustomer.setUI(new RComboBoxUI());
+        cbCoa = new JComboBox<>();
+        cbCoa.setUI(new RComboBoxUI());
+
+        // Row 1 (Tanggal Pembelian, Supplier)
+        gbc.gridx = 0;
+        gbc.gridy = 0; // mulai dari 0
+        formPanel.add(new JLabel("Tanggal"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(datePenjualan, gbc);
+
+        gbc.gridx = 2;
+        formPanel.add(new JLabel("Customer"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(cbCustomer, gbc);
+
+        gbc.gridx = 4;
+        formPanel.add(new JLabel("Metode Pembayaran"), gbc);
+        gbc.gridx = 5;
+        formPanel.add(cbCoa, gbc);
+        gbc.gridy++;
 
         // -------------------------
         // 🧩 TABLE DETAIL PENJUALAN
@@ -78,7 +130,7 @@ public class FormPenjualan extends JPanel {
         // -------------------------
         JPanel bottomPanel = new JPanel(new GridBagLayout());
         bottomPanel.setOpaque(false);
-        GridBagConstraints gbc = new GridBagConstraints();
+        gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -119,8 +171,36 @@ public class FormPenjualan extends JPanel {
         // 🧩 TAMBAH KE PANEL UTAMA
         // -------------------------
         add(topPanel, BorderLayout.NORTH);
-        add(spTable, BorderLayout.CENTER);
+
+        JPanel middle = new JPanel(new BorderLayout());
+        middle.setOpaque(false);
+        middle.add(formPanel, BorderLayout.NORTH);
+        middle.add(spTable, BorderLayout.CENTER);
+
+        add(middle, BorderLayout.CENTER);
+
         add(bottomPanel, BorderLayout.SOUTH);
+
+        loadCoa();
+        loadCustomers();
+    }
+
+    private void loadCustomers() {
+        cbCustomer.removeAllItems();
+        List<ModelCustomer> list = CustomerDAO.findAll();
+        cbCustomer.addItem(null);
+        for (ModelCustomer c : list) {
+            cbCustomer.addItem(c);
+        }
+    }
+
+    private void loadCoa() {
+        cbCoa.removeAllItems();
+        List<ModelCoa> list = CoaDAO.findAllByCode("101-01");
+        cbCoa.addItem(null);
+        for (ModelCoa c : list) {
+            cbCoa.addItem(c);
+        }
     }
 
     // -------------------------
@@ -170,6 +250,16 @@ public class FormPenjualan extends JPanel {
     }
 
     private void simpanPenjualan() {
+        ModelCustomer s = (ModelCustomer) cbCustomer.getSelectedItem();
+        if (s == null || s.getId() == 0) {
+            JOptionPane.showMessageDialog(this, "Pilih customer terlebih dahulu!");
+            return;
+        }
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Belum ada item!");
+            return;
+        }
+
         double total = 0;
         List<ModelPenjualanDetail> details = new ArrayList<>();
 
@@ -192,7 +282,14 @@ public class FormPenjualan extends JPanel {
         txtTotal.setText(String.valueOf(total));
 
         ModelPenjualan p = new ModelPenjualan();
-        p.setTanggal(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        Date selectedDate = datePenjualan.getDate();
+        if (selectedDate == null) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pembelian!");
+            return;
+        }
+        p.setCustomerId(s.getId());
+        p.setCoaId(((ModelCoa) cbCoa.getSelectedItem()).getId());
+        p.setTanggal(df.format(selectedDate));
         p.setTotalHarga(total);
         p.setDetailList(details);
 

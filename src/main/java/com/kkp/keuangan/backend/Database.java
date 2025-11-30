@@ -64,6 +64,8 @@ public class Database {
                     "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
                     ")";
             stmt.execute(sql);
+            stmt.execute(
+                    "INSERT OR IGNORE INTO customer (id, nama, hutang) VALUES (1, 'Umum',0)");
 
             // Supplier
             sql = "CREATE TABLE IF NOT EXISTS supplier (" +
@@ -73,12 +75,18 @@ public class Database {
                     "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
                     ")";
             stmt.execute(sql);
+            stmt.execute(
+                    "INSERT OR IGNORE INTO supplier (id, nama, hutang) VALUES (1, 'Umum',0)");
 
             // Penjualan
             sql = "CREATE TABLE IF NOT EXISTS penjualan (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "tanggal TEXT, " +
-                    "total_harga REAL) ";
+                    "customer_id INTEGER, " +
+                    "coa_id INTEGER, " +
+                    "total_harga REAL, " +
+                    "FOREIGN KEY (customer_id) REFERENCES customer(id), " +
+                    "FOREIGN KEY (coa_id) REFERENCES coa(id)) ";
             stmt.execute(sql);
 
             // Penjualan Detail

@@ -22,8 +22,10 @@ import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
+import com.kkp.keuangan.laporan.LaporanKas;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.monitor.MonitorPenjualan;
+
 
 
 /**
@@ -50,10 +52,12 @@ public class Main extends javax.swing.JFrame {
     private FormPembelian formPembelian;
     private FormMutasikas formMutasikas;
 
+
     // Monitor Page
     private MonitorPenjualan monitorPenjualan;
 
     // Report Page
+    private LaporanKas laporanKas;
 
     public Main() {
         initComponents();
@@ -76,7 +80,8 @@ public class Main extends javax.swing.JFrame {
         // Monitor Page
         monitorPenjualan = new MonitorPenjualan();
         // Report Page
-
+        laporanKas = new LaporanKas();
+        
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
             @Override
@@ -113,7 +118,7 @@ public class Main extends javax.swing.JFrame {
                         setForm(formMutasikas);
                         break;
                     case LAP_KAS:
-                        setForm(form3);
+                        setForm(laporanKas);
                         break;
                     case LAP_NERACA:
                         setForm(form3);

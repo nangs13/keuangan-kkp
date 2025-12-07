@@ -18,6 +18,7 @@ import com.kkp.keuangan.form.FormPembelian;
 import com.kkp.keuangan.form.FormPenjualan;
 import com.kkp.keuangan.form.FormProduk;
 import com.kkp.keuangan.form.FormSupplier;
+import com.kkp.keuangan.form.FormBiaya;
 import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
@@ -50,6 +51,7 @@ public class Main extends javax.swing.JFrame {
     private FormCustomer formCustomer;
     private FormPembelian formPembelian;
     private FormMutasikas formMutasikas;
+    private FormBiaya formBiaya;
 
 
     // Monitor Page
@@ -76,6 +78,7 @@ public class Main extends javax.swing.JFrame {
         formSupplier = new FormSupplier();
         formPembelian = new FormPembelian();
         formMutasikas = new FormMutasikas();
+        formBiaya = new FormBiaya();
 
         // Monitor Page
         monitorPenjualan = new MonitorPenjualan();
@@ -114,7 +117,7 @@ public class Main extends javax.swing.JFrame {
                         setForm(formPembelian);
                         break;
                     case BIAYA:
-                        setForm(form3);
+                        setForm(formBiaya);
                         break;
                     case MUTASI_KAS:
                         setForm(formMutasikas);

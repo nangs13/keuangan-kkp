@@ -15,6 +15,8 @@ public class ModelPembelianDetail {
     private String satuan;
     private double hargaUnit;
     private double total;
+    
+    public ModelPembelianDetail() {}
 
     public ModelPembelianDetail(int id, int pembelianId, int produkId, double qty, String satuan, double hargaUnit,
             double total) {

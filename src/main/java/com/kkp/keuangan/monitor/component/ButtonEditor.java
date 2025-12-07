@@ -33,7 +33,7 @@ public class ButtonEditor extends DefaultCellEditor {
         java.util.List<ModelPenjualanDetail> details = dao.getDetailsByPenjualanId(penjualanId);
 
         Frame parent = JOptionPane.getFrameForComponent(table);
-        JDialog dialog = new JDialog(parent, "Detail Penjualan", true);
+        JDialog dialog = new JDialog(parent, "Detail", true);
         dialog.setSize(500, 300);
         dialog.setLocationRelativeTo(null);
 

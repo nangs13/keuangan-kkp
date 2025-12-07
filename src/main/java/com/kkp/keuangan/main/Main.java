@@ -25,8 +25,7 @@ import com.kkp.keuangan.form.Form_Home;
 import com.kkp.keuangan.laporan.LaporanKas;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.monitor.MonitorPenjualan;
-
-
+import com.kkp.keuangan.monitor.MonitorPembelian;
 
 /**
  *
@@ -55,6 +54,7 @@ public class Main extends javax.swing.JFrame {
 
     // Monitor Page
     private MonitorPenjualan monitorPenjualan;
+    private MonitorPembelian monitorPembelian;
 
     // Report Page
     private LaporanKas laporanKas;
@@ -79,6 +79,8 @@ public class Main extends javax.swing.JFrame {
 
         // Monitor Page
         monitorPenjualan = new MonitorPenjualan();
+        monitorPembelian = new MonitorPembelian();
+
         // Report Page
         laporanKas = new LaporanKas();
         
@@ -131,6 +133,9 @@ public class Main extends javax.swing.JFrame {
                         break;
                     case MONITOR_PENJUALAN:
                         setForm(monitorPenjualan);
+                        break;
+                    case MONITOR_PEMBELIAN:
+                        setForm(monitorPembelian);
                         break;
                     default:
                         // For empty

@@ -1,5 +1,6 @@
 package com.kkp.keuangan.backend.model;
 
+import java.util.List;
 import java.util.Random;
 
 public class ModelPembelian {
@@ -13,6 +14,7 @@ public class ModelPembelian {
     private String poStatus;
     private String returStatus;
     private String remark;
+    private List<ModelPembelianDetail> detailList;
 
 
     public ModelPembelian() {
@@ -106,4 +108,7 @@ public class ModelPembelian {
         long t = System.currentTimeMillis() % 100000;
         return prefix + rnd + "-" + t;
     }
+
+    public List<ModelPembelianDetail> getDetailList() { return detailList; }
+    public void setDetailList(List<ModelPembelianDetail> detailList) { this.detailList = detailList; }
 }

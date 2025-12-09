@@ -23,11 +23,11 @@ import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
-import com.kkp.keuangan.laporan.LaporanKas;
+import com.kkp.keuangan.laporan.laporanKas;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.monitor.MonitorPenjualan;
 import com.kkp.keuangan.monitor.MonitorPembelian;
-
+import com.kkp.keuangan.form.FormLaporanLabarugi;
 /**
  *
  * @author RAVEN
@@ -52,15 +52,15 @@ public class Main extends javax.swing.JFrame {
     private FormPembelian formPembelian;
     private FormMutasikas formMutasikas;
     private FormBiaya formBiaya;
-
+    private FormLaporanLabarugi formLaporanLabarugi;
 
     // Monitor Page
     private MonitorPenjualan monitorPenjualan;
     private MonitorPembelian monitorPembelian;
 
     // Report Page
-    private LaporanKas laporanKas;
-
+    private laporanKas laporanKas;
+    
     public Main() {
         initComponents();
         setBackground(new Color(0, 0, 0, 0));
@@ -79,13 +79,14 @@ public class Main extends javax.swing.JFrame {
         formPembelian = new FormPembelian();
         formMutasikas = new FormMutasikas();
         formBiaya = new FormBiaya();
+        formLaporanLabarugi = new FormLaporanLabarugi();
 
         // Monitor Page
         monitorPenjualan = new MonitorPenjualan();
         monitorPembelian = new MonitorPembelian();
 
         // Report Page
-        laporanKas = new LaporanKas();
+        laporanKas = new laporanKas();
         
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
@@ -129,7 +130,7 @@ public class Main extends javax.swing.JFrame {
                         setForm(form3);
                         break;
                     case LAP_LABA_RUGI:
-                        setForm(form3);
+                        setForm(formLaporanLabarugi);
                         break;
                     case LAP_ARUS_KAS:
                         setForm(form3);

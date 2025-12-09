@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1d87fe75-3bfb-425d-8c92-7df2a7d753f5">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="periode" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT
+        SUM(CASE WHEN code LIKE '401%' THEN ending ELSE 0 END) AS laba_kotor,
+        SUM(CASE WHEN code LIKE '501%' THEN ending ELSE 0 END) AS biaya_marketing,
+        (SUM(CASE WHEN code LIKE '401%' THEN ending ELSE 0 END)
+         - SUM(CASE WHEN code LIKE '501%' THEN ending ELSE 0 END)) AS laba_bersih
+    FROM coa
+    WHERE periode = $P{periode}]]>
+	</queryString>
+	<field name="laba_kotor" class="java.lang.Double"/>
+	<field name="biaya_marketing" class="java.lang.Double"/>
+	<field name="laba_bersih" class="java.lang.Double"/>
+	<title>
+		<band height="80">
+			<staticText>
+				<reportElement x="0" y="10" width="555" height="25" uuid="0db21eef-b54e-4569-9f9d-789c3c696a1f"/>
+				<textElement textAlignment="Center">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Laporan Laba Rugi]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="35" width="555" height="20" uuid="5fa84c5c-4b10-4e32-8bd0-76cab2ca2072"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Kedai Budhe]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="55" width="555" height="20" uuid="4e159966-ebbd-4c78-b71e-dcb28f8bce25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Periode : " + $P{periode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="220">
+			<staticText>
+				<reportElement x="20" y="10" width="200" height="20" uuid="c3a82234-22ba-4e17-b1d4-d0b4f0bf5118"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[LABA KOTOR]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="10" width="135" height="20" uuid="ec58afd8-df32-46d2-ab59-eb635cddcd0a"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{laba_kotor}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="35" width="515" height="1" uuid="5921464e-12ab-4ca5-9f91-92e293476f45"/>
+			</line>
+			<staticText>
+				<reportElement x="20" y="45" width="200" height="20" uuid="70aaec7b-b551-459a-aa69-62888c72f2b9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[BIAYA MARKETING]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="40" y="65" width="250" height="20" uuid="e2fd649f-25f2-42c8-8e40-84cf70dfa479"/>
+				<textElement>
+					<font isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Biaya Admin - Parkir & Tol]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="65" width="135" height="20" uuid="d30eb544-a4ae-4ca4-b8b1-3e6118f2f45e"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{biaya_marketing}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="40" y="90" width="250" height="20" uuid="f808cdd3-d256-4601-8178-36ae6dab5bb2"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL BIAYA MARKETING]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="90" width="135" height="20" uuid="569b7b09-132d-48f8-a800-631f93d5a35c"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{biaya_marketing}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="115" width="515" height="1" uuid="00ac0972-a43d-4215-a1da-40afc9c2543f"/>
+			</line>
+			<staticText>
+				<reportElement x="20" y="130" width="250" height="20" uuid="bb9a871b-bc45-4268-9aed-cfc8e5de41a9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[LABA BERSIH SEBELUM PAJAK]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="130" width="135" height="20" uuid="04c9052f-ffc7-4641-bfc9-b4be9ef0aed0"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{laba_bersih}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="155" width="515" height="1" uuid="869ef913-9ffe-4699-8e35-01903a769a85"/>
+			</line>
+			<staticText>
+				<reportElement x="370" y="180" width="150" height="20" uuid="e216331f-fb7c-4888-a931-85bee37afc27"/>
+				<textElement textAlignment="Center">
+					<font size="11"/>
+				</textElement>
+				<text><![CDATA[Manajemen]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

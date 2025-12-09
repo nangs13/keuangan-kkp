@@ -28,11 +28,11 @@ class KasRecord {
         this.saldoAkhir = saldoAkhir;
     }
 }
-public class LaporanKas extends JPanel {
+public class laporanKas extends JPanel {
     JTable table;
     DefaultTableModel model;
 
-    public LaporanKas() {
+    public laporanKas() {
 
         setLayout(new BorderLayout());
 
@@ -95,7 +95,7 @@ public class LaporanKas extends JPanel {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> {
             new javax.swing.JFrame() {{
-                setContentPane(new LaporanKas());
+                setContentPane(new laporanKas());
                 setTitle("Laporan Kas");
                 setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
                 pack();

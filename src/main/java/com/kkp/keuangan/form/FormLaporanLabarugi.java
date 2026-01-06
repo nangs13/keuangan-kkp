@@ -3,14 +3,33 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.kkp.keuangan.form;
-import com.kkp.keuangan.backend.Database;
-import com.kkp.keuangan.component.uis.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.sql.*;
-import java.util.*;
-import javax.swing.*;
-import net.sf.jasperreports.engine.*;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.component.uis.RButtonUI;
+import com.kkp.keuangan.component.uis.RComboBoxUI;
+import com.kkp.keuangan.component.uis.RPanelUI;
+
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
 /**
  *
@@ -34,11 +53,11 @@ public class FormLaporanLabarugi extends JPanel {
         JLabel lblTitle = new JLabel("Laporan Laba Rugi");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTitle.setBounds(0, 20, 900, 30);
+        lblTitle.setBounds(0, 20, 900, 50);
         add(lblTitle);
 
         JLabel lblBulan = new JLabel("Pilih Bulan:");
-        lblBulan.setBounds(200, 80, 100, 25);
+        lblBulan.setBounds(200, 80, 100, 50);
         add(lblBulan);
 
         String[] bulan = {
@@ -47,12 +66,12 @@ public class FormLaporanLabarugi extends JPanel {
             "09 - September", "10 - Oktober", "11 - November", "12 - Desember"
         };
         cbBulan = new JComboBox<>(bulan);
-        cbBulan.setBounds(280, 80, 140, 25);
+        cbBulan.setBounds(280, 80, 140, 50);
         cbBulan.setUI(new RComboBoxUI());
         add(cbBulan);
 
         JLabel lblTahun = new JLabel("Pilih Tahun:");
-        lblTahun.setBounds(450, 80, 100, 25);
+        lblTahun.setBounds(450, 80, 100, 50);
         add(lblTahun);
 
         int tahunSekarang = Calendar.getInstance().get(Calendar.YEAR);
@@ -62,14 +81,14 @@ public class FormLaporanLabarugi extends JPanel {
             String.valueOf(tahunSekarang + 1)
         };
         cbTahun = new JComboBox<>(tahun);
-        cbTahun.setBounds(540, 80, 100, 25);
+        cbTahun.setBounds(540, 80, 100, 50);
         cbTahun.setUI(new RComboBoxUI());
         cbTahun.setSelectedItem(String.valueOf(tahunSekarang));
         add(cbTahun);
 
         btnTampilkan = new JButton("Tampilkan");
         btnTampilkan.setUI(new RButtonUI());
-        btnTampilkan.setBounds(660, 80, 120, 25);
+        btnTampilkan.setBounds(660, 80, 120, 50);
         add(btnTampilkan);
         btnTampilkan.addActionListener(this::tampilkanLaporan);
 
@@ -184,9 +203,21 @@ public class FormLaporanLabarugi extends JPanel {
             Map<String, Object> param = new HashMap<>();
             param.put("periode", periode);
 
-            String jasperPath = "C:\\Users\\User\\Documents\\Semester 7\\kkpUpdate\\keuangan-kkp\\src\\main\\java\\com\\kkp\\keuangan\\laporan\\LaporanLaba-rugi.jasper";
+            // Load Jasper dari resources
+            InputStream jasperStream = getClass()
+                    .getClassLoader()
+                    .getResourceAsStream("com/kkp/keuangan/laporan/LaporanLaba-rugi.jasper");
 
-            JasperPrint jp = JasperFillManager.fillReport(jasperPath, param, Database.getConnection());
+            if (jasperStream == null) {
+                throw new RuntimeException("File LaporanLaba-rugi.jasper tidak ditemukan di resources");
+            }
+
+            JasperPrint jp = JasperFillManager.fillReport(
+                    jasperStream,
+                    param,
+                    Database.getConnection()
+            );
+
             JasperViewer.viewReport(jp, false);
 
         } catch (Exception ex) {

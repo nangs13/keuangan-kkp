@@ -4,19 +4,43 @@
  */
 package com.kkp.keuangan.form;
  
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
 import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.dao.CoaDAO;
+import com.kkp.keuangan.backend.dao.MutasiKasDAO;
 import com.kkp.keuangan.backend.model.ModelCoa;
+import com.kkp.keuangan.backend.model.ModelMutasiKas;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RComboBoxUI;
 import com.kkp.keuangan.component.uis.RPanelUI;
-import com.kkp.keuangan.component.uis.RTextFieldUI;
 import com.kkp.keuangan.component.uis.RScrollBarUI;
+import com.kkp.keuangan.component.uis.RTextFieldUI;
 /**
  *
  * @author User
@@ -27,8 +51,6 @@ public class FormMutasikas extends JPanel {
     private JLabel lblTotalSumber;
     private JPanel panelTujuan;
     private JLabel lblTotalTujuan;
-    private JTable tblHistori;
-    private DefaultTableModel modelHistori;
     private java.util.List<TujuanRow> tujuanList = new ArrayList<>();
     private java.util.Map<String, String> coaMap = new java.util.HashMap<>();
   public FormMutasikas() {
@@ -45,8 +67,9 @@ public class FormMutasikas extends JPanel {
         JLabel lblTanggal = new JLabel("Tanggal:");
         lblTanggal.setFont(lblTanggal.getFont().deriveFont(Font.PLAIN, 12f));
         panelTanggal.add(lblTanggal, BorderLayout.NORTH);
+
         txtTanggal = new JTextField(java.time.LocalDate.now().toString());
-        txtTanggal.setPreferredSize(new Dimension(120, 28));
+        txtTanggal.setPreferredSize(new Dimension(120, 30));
         // apply custom textfield UI
         txtTanggal.setUI(new RTextFieldUI());
         panelTanggal.add(txtTanggal, BorderLayout.CENTER);
@@ -55,6 +78,7 @@ public class FormMutasikas extends JPanel {
         panelKet.setOpaque(false);
         JLabel lblKet = new JLabel("Keterangan:");
         lblKet.setFont(lblKet.getFont().deriveFont(Font.PLAIN, 12f));
+
         panelKet.add(lblKet, BorderLayout.NORTH);
         txtKeterangan = new JTextField();
         txtKeterangan.setUI(new RTextFieldUI());
@@ -71,10 +95,10 @@ public class FormMutasikas extends JPanel {
         cmbSumberDana = new JComboBox<>();
         loadCoaData(cmbSumberDana);
         cmbSumberDana.setUI(new RComboBoxUI());
-        cmbSumberDana.setPreferredSize(new Dimension(240, 30));
+        cmbSumberDana.setPreferredSize(new Dimension(240, 40));
 
         txtJumlahSumber = new JTextField(10);
-        txtJumlahSumber.setPreferredSize(new Dimension(120, 28));
+        txtJumlahSumber.setPreferredSize(new Dimension(120, 40));
         txtJumlahSumber.setUI(new RTextFieldUI());
         lblTotalSumber = new JLabel("Total Sumber: 0");
 
@@ -157,26 +181,8 @@ public class FormMutasikas extends JPanel {
             scrollForm.getVerticalScrollBar().setUI(new RScrollBarUI());
         }
 
-        // ===== Panel Histori Mutasi =====
-        modelHistori = new DefaultTableModel(
-                new String[]{"Tanggal", "Sumber Dana", "Tujuan Dana", "Total", "Keterangan"}, 0);
-        tblHistori = new JTable(modelHistori);
-        tblHistori.setRowHeight(22);
-        tblHistori.setFillsViewportHeight(true);
-        tblHistori.setShowGrid(false);
-        tblHistori.setIntercellSpacing(new Dimension(8, 4));
-        tblHistori.setFont(tblHistori.getFont().deriveFont(Font.PLAIN, 12f));
-
-        JScrollPane scrollHistori = new JScrollPane(tblHistori);
-        scrollHistori.setBorder(BorderFactory.createTitledBorder("Histori Mutasi"));
-        scrollHistori.setPreferredSize(new Dimension(820, 180)); // agak naik / proporsional
-        if (scrollHistori.getVerticalScrollBar() != null) {
-            scrollHistori.getVerticalScrollBar().setUI(new RScrollBarUI());
-        }
-
         // ===== Layout utama =====
         add(scrollForm, BorderLayout.CENTER);
-        add(scrollHistori, BorderLayout.SOUTH);
 
         // ===== Aksi =====
         btnTambahTujuan.addActionListener(e -> tambahTujuan());
@@ -193,7 +199,6 @@ public class FormMutasikas extends JPanel {
         }
     }
 
-    // === Load daftar COA untuk combobox ===
     private void loadCoaData(JComboBox<String> combo) {
         String sql = "SELECT code, nama FROM coa WHERE code IN ('101-03','101-02','101-01003','101-01002','101-01001')";
         try (Connection conn = Database.getConnection();
@@ -236,26 +241,44 @@ public class FormMutasikas extends JPanel {
     }
 
     private void simpanMutasi() {
-        String tanggal = txtTanggal.getText();
-        String sumber = cmbSumberDana.getSelectedItem().toString();
-        String ket = txtKeterangan.getText();
-        int jumlahSumber;
+        String tanggal = txtTanggal.getText().trim();
+        if (tanggal.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tanggal harus diisi!");
+            return;
+        }
 
+        String sumberNama = cmbSumberDana.getSelectedItem().toString();
+        String keterangan = txtKeterangan.getText();
+
+        int jumlahSumber;
         try {
-            jumlahSumber = Integer.parseInt(txtJumlahSumber.getText());
+            jumlahSumber = Integer.parseInt(txtJumlahSumber.getText().trim());
+            if (jumlahSumber <= 0) {
+                JOptionPane.showMessageDialog(this, "Jumlah sumber harus lebih dari 0!");
+                return;
+            }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Jumlah sumber tidak valid!");
             return;
         }
 
+        // Hitung total tujuan & validasi
         int totalTujuan = 0;
-        StringBuilder tujuanStr = new StringBuilder();
+        StringBuilder tujuanDisplay = new StringBuilder();
 
         for (TujuanRow row : tujuanList) {
             if (row.getNominal() > 0) {
-                tujuanStr.append(row.getTujuan()).append(" (").append(row.getNominal()).append("), ");
                 totalTujuan += row.getNominal();
+                tujuanDisplay.append(row.getTujuan())
+                            .append(" (")
+                            .append(row.getNominal())
+                            .append("), ");
             }
+        }
+
+        if (tujuanList.isEmpty() || totalTujuan == 0) {
+            JOptionPane.showMessageDialog(this, "Harap tambahkan setidaknya satu tujuan dengan nominal!");
+            return;
         }
 
         if (totalTujuan != jumlahSumber) {
@@ -264,43 +287,51 @@ public class FormMutasikas extends JPanel {
             return;
         }
 
-        try (Connection conn = Database.getConnection()) {
-            conn.setAutoCommit(false);
-            String sumberCode = coaMap.get(sumber);
-
-            try (PreparedStatement ps = conn.prepareStatement("UPDATE coa SET ending = ending - ? WHERE code = ?")) {
-                ps.setDouble(1, jumlahSumber);
-                ps.setString(2, sumberCode);
-                ps.executeUpdate();
-            }
-
-            for (TujuanRow row : tujuanList) {
-                String tujuanCode = coaMap.get(row.getTujuan());
-
-                try (PreparedStatement ps = conn.prepareStatement("UPDATE coa SET ending = ending + ? WHERE code = ?")) {
-                    ps.setDouble(1, row.getNominal());
-                    ps.setString(2, tujuanCode);
-                    ps.executeUpdate();
-                }
-
-                try (PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO mutasi_kas (tanggal, sumber_code, tujuan_code, jumlah, keterangan) VALUES (?, ?, ?, ?, ?)")) {
-                    ps.setString(1, tanggal);
-                    ps.setString(2, sumberCode);
-                    ps.setString(3, tujuanCode);
-                    ps.setDouble(4, row.getNominal());
-                    ps.setString(5, ket);
-                    ps.executeUpdate();
-                }
-            }
-
-            conn.commit();
-            JOptionPane.showMessageDialog(this, "Mutasi berhasil disimpan!");
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal simpan mutasi: " + e.getMessage());
+        String sumberCode = coaMap.get(sumberNama);
+        if (sumberCode == null) {
+            JOptionPane.showMessageDialog(this, "Kode COA untuk sumber tidak ditemukan!");
+            return;
         }
 
-        modelHistori.addRow(new Object[]{tanggal, sumber, tujuanStr.toString(), jumlahSumber, ket});
+        try {
+            CoaDAO coaDAO = new CoaDAO();
+            MutasiKasDAO mutasiKasDAO = new MutasiKasDAO();
+
+            ModelCoa coaSumber = coaDAO.findByCode(sumberCode);
+            coaDAO.updateSaldo(coaSumber.getId(), "credit", jumlahSumber);
+
+            for (TujuanRow row : tujuanList) {
+                if (row.getNominal() <= 0) continue;
+
+                String tujuanNama = row.getTujuan();
+                int nominalTujuan = row.getNominal();
+
+                String tujuanCode = coaMap.get(tujuanNama);
+                if (tujuanCode == null) {
+                    throw new SQLException("Kode COA untuk tujuan '" + tujuanNama + "' tidak ditemukan!");
+                }
+
+                ModelCoa coaTujuan = coaDAO.findByCode(tujuanCode);
+                coaDAO.updateSaldo(coaTujuan.getId(), "debit", nominalTujuan);
+
+                ModelMutasiKas mutasi = new ModelMutasiKas();
+                mutasi.setTanggal(tanggal);
+                mutasi.setSumberCode(sumberCode);
+                mutasi.setTujuanCode(tujuanCode);
+                mutasi.setJumlah(nominalTujuan);
+                mutasi.setKeterangan(keterangan);
+
+                mutasiKasDAO.insert(mutasi);
+            }
+
+            JOptionPane.showMessageDialog(this, "Mutasi berhasil disimpan!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal simpan mutasi: " + e.getMessage());
+            return;
+        }
+
+        // Reset form
         tujuanList.clear();
         panelTujuan.removeAll();
         panelTujuan.revalidate();
@@ -321,16 +352,16 @@ public class FormMutasikas extends JPanel {
 
             cmbTujuan = new JComboBox<>();
             parent.loadCoaData(cmbTujuan);
-            cmbTujuan.setPreferredSize(new Dimension(220, 28));
+            cmbTujuan.setPreferredSize(new Dimension(220, 40));
             cmbTujuan.setUI(new RComboBoxUI());
 
             txtNominal = new JTextField(8);
-            txtNominal.setPreferredSize(new Dimension(100, 28));
+            txtNominal.setPreferredSize(new Dimension(100, 40));
             txtNominal.setUI(new RTextFieldUI());
 
             btnHapus = new JButton("Hapus");
             btnHapus.setUI(new RButtonUI());
-            btnHapus.setPreferredSize(new Dimension(84, 28));
+            btnHapus.setPreferredSize(new Dimension(84, 30));
             btnHapus.addActionListener(e -> {
                 Container c = getParent();
                 if (c != null) {

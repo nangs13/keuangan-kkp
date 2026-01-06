@@ -78,6 +78,19 @@ public class Database {
             stmt.execute(
                     "INSERT OR IGNORE INTO supplier (id, nama, hutang) VALUES (1, 'Umum',0)");
 
+            // Mutasi Kas
+            sql = "CREATE TABLE IF NOT EXISTS mutasi_kas (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "code TEXT NOT NULL, " +
+                "tanggal TEXT NOT NULL, " +
+                "sumber_code TEXT NOT NULL, " +
+                "tujuan_code TEXT NOT NULL, " +
+                "jumlah DECIMAL(15,2) NOT NULL, " +
+                "keterangan TEXT, " +
+                "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+            stmt.execute(sql);
+
             // Penjualan
             sql = "CREATE TABLE IF NOT EXISTS penjualan (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +

@@ -200,7 +200,7 @@ public class FormMutasikas extends JPanel {
     }
 
     private void loadCoaData(JComboBox<String> combo) {
-        String sql = "SELECT code, nama FROM coa WHERE code IN ('101-03','101-02','101-01003','101-01002','101-01001')";
+        String sql = "SELECT code, nama FROM coa WHERE code LIKE '101-01%'";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -361,7 +361,7 @@ public class FormMutasikas extends JPanel {
 
             btnHapus = new JButton("Hapus");
             btnHapus.setUI(new RButtonUI());
-            btnHapus.setPreferredSize(new Dimension(84, 30));
+            btnHapus.setPreferredSize(new Dimension(84, 40));
             btnHapus.addActionListener(e -> {
                 Container c = getParent();
                 if (c != null) {

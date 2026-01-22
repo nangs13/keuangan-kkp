@@ -91,6 +91,18 @@ public class Database {
                 ")";
             stmt.execute(sql);
 
+            sql = "CREATE TABLE IF NOT EXISTS biaya (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "code TEXT NOT NULL, " +
+                "tanggal DATE NOT NULL, " +
+                "sumber_code TEXT NOT NULL, " +
+                "tujuan_code TEXT NOT NULL, " +
+                "jumlah DECIMAL(15,2) NOT NULL, " +
+                "keterangan TEXT, " +
+                "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+             stmt.execute(sql);
+
             // Penjualan
             sql = "CREATE TABLE IF NOT EXISTS penjualan (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +

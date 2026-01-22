@@ -1,17 +1,23 @@
 package com.kkp.keuangan.monitor.component;
 
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Frame;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import com.kkp.keuangan.backend.dao.PenjualanDAO;
+import com.kkp.keuangan.backend.dao.ProdukDAO;
 import com.kkp.keuangan.backend.model.ModelPenjualanDetail;
 import com.kkp.keuangan.backend.model.ModelProduk;
 import com.kkp.keuangan.component.uis.RButtonUI;
-
-import java.awt.*;
-import java.awt.event.*;
-
-import com.kkp.keuangan.backend.dao.ProdukDAO;
 
 public class ButtonEditor extends DefaultCellEditor {
     private JButton button;
@@ -24,6 +30,7 @@ public class ButtonEditor extends DefaultCellEditor {
 
         button = new JButton("Detail");
         button.setUI(new RButtonUI());
+        button.setForeground(new Color(0, 0, 0));
 
         button.addActionListener(e -> fireEditingStopped());
     }

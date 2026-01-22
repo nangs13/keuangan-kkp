@@ -1,65 +1,61 @@
 package com.kkp.keuangan.backend.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.model.ModelBiaya;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kkp.keuangan.backend.Database;
-import com.kkp.keuangan.backend.model.ModelMutasiKas;
+public class BiayaDAO {
 
-public class MutasiKasDAO {
+    public ModelBiaya insert(ModelBiaya biaya) {
+        String newCode = generateNextKodeBiaya();
 
-    public ModelMutasiKas insert(ModelMutasiKas mutasi) {
-        String newCode = generateNextKodeMutasi();
-
-        String sql = "INSERT INTO mutasi_kas (code, tanggal, sumber_code, tujuan_code, jumlah, keterangan) " +
+        String sql = "INSERT INTO biaya (code, tanggal, sumber_code, tujuan_code, jumlah, keterangan) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
-        
+
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             ps.setString(1, newCode);
-            ps.setString(2, mutasi.getTanggal());
-            ps.setString(3, mutasi.getSumberCode());
-            ps.setString(4, mutasi.getTujuanCode());
-            ps.setDouble(5, mutasi.getJumlah());
-            ps.setString(6, mutasi.getKeterangan());
-            
+            ps.setString(2, biaya.getTanggal());
+            ps.setString(3, biaya.getSumberCode());
+            ps.setString(4, biaya.getTujuanCode());
+            ps.setDouble(5, biaya.getJumlah());
+            ps.setString(6, biaya.getKeterangan());
+
             int affectedRows = ps.executeUpdate();
-            
+
             if (affectedRows == 0) {
-                throw new SQLException("Insert mutasi kas gagal, tidak ada baris yang terpengaruh.");
+                throw new SQLException("Insert biaya gagal, tidak ada baris yang terpengaruh.");
             }
-            
+
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int newId = generatedKeys.getInt(1);
                     return findById(newId);
                 } else {
-                    throw new SQLException("Insert mutasi kas gagal, tidak mendapatkan ID baru.");
+                    throw new SQLException("Insert biaya gagal, tidak mendapatkan ID baru.");
                 }
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error saat insert mutasi kas", e);
+            throw new RuntimeException("Error saat insert biaya", e);
         }
     }
 
-    public void update(ModelMutasiKas mutasi) {
-        String sql = "UPDATE mutasi_kas SET tanggal = ?, sumber_code = ?, tujuan_code = ?, jumlah = ?, keterangan = ? WHERE id = ?";
+    public void update(ModelBiaya biaya) {
+        String sql = "UPDATE biaya SET tanggal = ?, sumber_code = ?, tujuan_code = ?, jumlah = ?, keterangan = ? WHERE id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, mutasi.getTanggal());
-            ps.setString(2, mutasi.getSumberCode());
-            ps.setString(3, mutasi.getTujuanCode());
-            ps.setDouble(4, mutasi.getJumlah());
-            ps.setString(5, mutasi.getKeterangan());
-            ps.setInt(6, mutasi.getId());
+            ps.setString(1, biaya.getTanggal());
+            ps.setString(2, biaya.getSumberCode());
+            ps.setString(3, biaya.getTujuanCode());
+            ps.setDouble(4, biaya.getJumlah());
+            ps.setString(5, biaya.getKeterangan());
+            ps.setInt(6, biaya.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -67,7 +63,7 @@ public class MutasiKasDAO {
     }
 
     public void delete(int id) {
-        String sql = "DELETE FROM mutasi_kas WHERE id = ?";
+        String sql = "DELETE FROM biaya WHERE id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -77,15 +73,16 @@ public class MutasiKasDAO {
         }
     }
 
-    public List<ModelMutasiKas> findAll() {
-        List<ModelMutasiKas> list = new ArrayList<>();
-        String sql = "SELECT * FROM mutasi_kas ORDER BY tanggal DESC, id DESC";
+    public List<ModelBiaya> findAll() {
+        List<ModelBiaya> list = new ArrayList<>();
+        String sql = "SELECT * FROM biaya ORDER BY tanggal DESC, id DESC";
         try (Connection conn = Database.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                list.add(new ModelMutasiKas(
+                list.add(new ModelBiaya(
                         rs.getInt("id"),
+                        rs.getString("code"),
                         rs.getString("tanggal"),
                         rs.getString("sumber_code"),
                         rs.getString("tujuan_code"),
@@ -100,15 +97,16 @@ public class MutasiKasDAO {
         return list;
     }
 
-    public ModelMutasiKas findById(int id) {
-        String sql = "SELECT * FROM mutasi_kas WHERE id = ?";
+    public ModelBiaya findById(int id) {
+        String sql = "SELECT * FROM biaya WHERE id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new ModelMutasiKas(
+                    return new ModelBiaya(
                             rs.getInt("id"),
+                            rs.getString("code"),
                             rs.getString("tanggal"),
                             rs.getString("sumber_code"),
                             rs.getString("tujuan_code"),
@@ -124,12 +122,12 @@ public class MutasiKasDAO {
         return null;
     }
 
-    public List<ModelMutasiKas> getSummaryAll() {
-        List<ModelMutasiKas> summaries = new ArrayList<>();
+    public List<ModelBiaya> getSummaryAll() {
+        List<ModelBiaya> summaries = new ArrayList<>();
         String sql = """
             SELECT 
                 *
-            FROM mutasi_kas 
+            FROM biaya 
             GROUP BY code
             ORDER BY tanggal DESC, code DESC
             """;
@@ -139,7 +137,7 @@ public class MutasiKasDAO {
             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                ModelMutasiKas summary = new ModelMutasiKas();
+                ModelBiaya summary = new ModelBiaya();
                 summary.setCode(rs.getString("code"));
                 summary.setTanggal(rs.getString("tanggal"));
                 summary.setSumberCode(rs.getString("sumber_code"));
@@ -150,18 +148,18 @@ public class MutasiKasDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error saat mengambil summary semua mutasi kas", e);
+            throw new RuntimeException("Error saat mengambil summary semua Biaya", e);
         }
 
         return summaries;
     }
 
-    public List<ModelMutasiKas> findPageSummary(int limit, int offset) {
-        List<ModelMutasiKas> summaries = new ArrayList<>();
+    public List<ModelBiaya> findPageSummary(int limit, int offset) {
+        List<ModelBiaya> summaries = new ArrayList<>();
         String sql = """
             SELECT 
                 *
-            FROM mutasi_kas 
+            FROM biaya 
             GROUP BY code
             ORDER BY tanggal DESC, code DESC
             LIMIT ?, ?
@@ -176,7 +174,7 @@ public class MutasiKasDAO {
 
 
             while (rs.next()) {
-                ModelMutasiKas summary = new ModelMutasiKas();
+                ModelBiaya summary = new ModelBiaya();
                 summary.setCode(rs.getString("code"));
                 summary.setTanggal(rs.getString("tanggal"));
                 summary.setSumberCode(rs.getString("sumber_code"));
@@ -187,18 +185,18 @@ public class MutasiKasDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error saat mengambil summary semua mutasi kas", e);
+            throw new RuntimeException("Error saat mengambil summary semua Biaya", e);
         }
 
         return summaries;
     }
 
-    public List<ModelMutasiKas> searchSummary(int limit, int offset, String search) {
-        List<ModelMutasiKas> summaries = new ArrayList<>();
+    public List<ModelBiaya> searchSummary(int limit, int offset, String search) {
+        List<ModelBiaya> summaries = new ArrayList<>();
         String sql = """
             SELECT 
                 *
-            FROM mutasi_kas 
+            FROM biaya 
             WHERE
                 code LIKE ? OR
                 tanggal LIKE ? OR
@@ -225,7 +223,7 @@ public class MutasiKasDAO {
 
 
             while (rs.next()) {
-                ModelMutasiKas summary = new ModelMutasiKas();
+                ModelBiaya summary = new ModelBiaya();
                 summary.setCode(rs.getString("code"));
                 summary.setTanggal(rs.getString("tanggal"));
                 summary.setSumberCode(rs.getString("sumber_code"));
@@ -236,14 +234,14 @@ public class MutasiKasDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error saat mengambil summary semua mutasi kas", e);
+            throw new RuntimeException("Error saat mengambil summary semua Biaya", e);
         }
 
         return summaries;
     }
 
     public int countAllSummary() {
-        String sql = "SELECT COUNT(DISTINCT code) FROM mutasi_kas";
+        String sql = "SELECT COUNT(DISTINCT code) FROM biaya";
         int count = 0;
 
         try (Connection conn = Database.getConnection();
@@ -255,15 +253,15 @@ public class MutasiKasDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error saat mengambil summary semua mutasi kas", e);
+            throw new RuntimeException("Error saat mengambil summary semua Biaya", e);
         }
 
         return count;
     }
 
-    public List<ModelMutasiKas> findByCode(String code) {
-        List<ModelMutasiKas> details = new ArrayList<>();
-        String sql = "SELECT * FROM mutasi_kas WHERE code = ? ORDER BY id ASC";
+    public List<ModelBiaya> findByCode(String code) {
+        List<ModelBiaya> details = new ArrayList<>();
+        String sql = "SELECT * FROM biaya WHERE code = ? ORDER BY id ASC";
 
         try (Connection conn = Database.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -272,7 +270,7 @@ public class MutasiKasDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ModelMutasiKas mutasi = new ModelMutasiKas();
+                    ModelBiaya mutasi = new ModelBiaya();
                     mutasi.setId(rs.getInt("id"));
                     mutasi.setCode(rs.getString("code"));
                     mutasi.setTanggal(rs.getString("tanggal"));
@@ -286,33 +284,33 @@ public class MutasiKasDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error saat mencari detail mutasi kas dengan code: " + code, e);
+            throw new RuntimeException("Error saat mencari detail Biaya dengan code: " + code, e);
         }
 
         return details;
     }
 
-    private String generateNextKodeMutasi() {
-        String sql = "SELECT code FROM mutasi_kas WHERE code LIKE 'MK-%' ORDER BY code DESC LIMIT 1";
-    
+    private String generateNextKodeBiaya() {
+        String sql = "SELECT code FROM biaya WHERE code LIKE 'B-%' ORDER BY code DESC LIMIT 1";
+
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-    
+
             if (rs.next()) {
                 String lastCode = rs.getString("code");
                 try {
-                    int number = Integer.parseInt(lastCode.substring(3));
-                    return String.format("MK-%03d", number + 1);
+                    int number = Integer.parseInt(lastCode.substring(2));
+                    return String.format("B-%03d", number + 1);
                 } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
-                    return "MK-001";
+                    return "B-001";
                 }
             } else {
-                return "MK-001";
+                return "B-001";
             }
-    
+
         } catch (SQLException e) {
-            throw new RuntimeException("Gagal generate kode mutasi kas", e);
+            throw new RuntimeException("Gagal generate kode biaya", e);
         }
     }
 }

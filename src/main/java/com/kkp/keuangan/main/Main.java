@@ -10,24 +10,26 @@ import java.awt.Color;
 import javax.swing.JComponent;
 
 import com.kkp.keuangan.event.EventMenuSelected;
+import com.kkp.keuangan.form.FormBiaya;
 import com.kkp.keuangan.form.FormCardInfo;
 import com.kkp.keuangan.form.FormCoa;
 import com.kkp.keuangan.form.FormCustomer;
+import com.kkp.keuangan.form.FormLaporanLabarugi;
 import com.kkp.keuangan.form.FormMutasikas;
 import com.kkp.keuangan.form.FormPembelian;
 import com.kkp.keuangan.form.FormPenjualan;
 import com.kkp.keuangan.form.FormProduk;
 import com.kkp.keuangan.form.FormSupplier;
-import com.kkp.keuangan.form.FormBiaya;
 import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
 import com.kkp.keuangan.laporan.laporanKas;
 import com.kkp.keuangan.model.Enum.MenuKey;
-import com.kkp.keuangan.monitor.MonitorPenjualan;
+import com.kkp.keuangan.monitor.MonitorMutasiKas;
+import com.kkp.keuangan.monitor.MonitorBiaya;
 import com.kkp.keuangan.monitor.MonitorPembelian;
-import com.kkp.keuangan.form.FormLaporanLabarugi;
+import com.kkp.keuangan.monitor.MonitorPenjualan;
 /**
  *
  * @author RAVEN
@@ -57,6 +59,8 @@ public class Main extends javax.swing.JFrame {
     // Monitor Page
     private MonitorPenjualan monitorPenjualan;
     private MonitorPembelian monitorPembelian;
+    private MonitorMutasiKas monitorMutasiKas;
+    private MonitorBiaya monitorBiaya;
 
     // Report Page
     private laporanKas laporanKas;
@@ -84,6 +88,8 @@ public class Main extends javax.swing.JFrame {
         // Monitor Page
         monitorPenjualan = new MonitorPenjualan();
         monitorPembelian = new MonitorPembelian();
+        monitorMutasiKas = new MonitorMutasiKas();
+        monitorBiaya = new MonitorBiaya();
 
         // Report Page
         laporanKas = new laporanKas();
@@ -140,6 +146,12 @@ public class Main extends javax.swing.JFrame {
                         break;
                     case MONITOR_PEMBELIAN:
                         setForm(monitorPembelian);
+                        break;
+                    case MONITOR_MUTASI_KAS:
+                        setForm(monitorMutasiKas);
+                        break;
+                    case MONITOR_BIAYA:
+                        setForm(monitorBiaya);
                         break;
                     default:
                         // For empty

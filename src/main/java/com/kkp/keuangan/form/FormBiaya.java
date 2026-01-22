@@ -7,6 +7,10 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.dao.BiayaDAO;
+import com.kkp.keuangan.backend.dao.CoaDAO;
+import com.kkp.keuangan.backend.model.ModelBiaya;
+import com.kkp.keuangan.backend.model.ModelCoa;
 import com.kkp.keuangan.component.uis.*;
 
 public class FormBiaya extends JPanel {
@@ -14,12 +18,11 @@ public class FormBiaya extends JPanel {
     private JTextField txtTanggal, txtKeterangan;
     private JLabel lblTotalSumber, lblTotalTujuan;
     private JPanel panelSumber, panelTujuan;
-    private JTable tblHistori;
-    private DefaultTableModel modelHistori;
 
     private java.util.List<SumberRow> sumberList = new ArrayList<>();
     private java.util.List<TujuanRow> tujuanList = new ArrayList<>();
     private java.util.Map<String, String> coaMap = new java.util.HashMap<>();
+    private java.util.Map<String, String> coaMapTujuan = new java.util.HashMap<>();
 
     public FormBiaya() {
         setLayout(new BorderLayout(12, 12));
@@ -128,19 +131,7 @@ public class FormBiaya extends JPanel {
         scrollForm.setPreferredSize(new Dimension(820, 360));
         scrollForm.getVerticalScrollBar().setUI(new RScrollBarUI());
 
-        // ===== Histori =====
-        modelHistori = new DefaultTableModel(
-            new String[]{"Tanggal", "Debit", "Kredit", "Total", "Keterangan"}, 0);
-        tblHistori = new JTable(modelHistori);
-        tblHistori.setRowHeight(22);
-
-        JScrollPane scrollHistori = new JScrollPane(tblHistori);
-        scrollHistori.setBorder(BorderFactory.createTitledBorder("Histori Biaya"));
-        scrollHistori.setPreferredSize(new Dimension(820, 180));
-        scrollHistori.getVerticalScrollBar().setUI(new RScrollBarUI());
-
         add(scrollForm, BorderLayout.CENTER);
-        add(scrollHistori, BorderLayout.SOUTH);
 
         // ===== Aksi =====
         btnTambahSumber.addActionListener(e -> tambahSumber());
@@ -149,7 +140,7 @@ public class FormBiaya extends JPanel {
     }
 
     private void loadCoaData(JComboBox<String> combo) {
-        String sql = "SELECT code, nama FROM coa";
+        String sql = "SELECT code, nama FROM coa WHERE code LIKE '101-010%'";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -158,6 +149,22 @@ public class FormBiaya extends JPanel {
                 String name = rs.getString("nama");
                 combo.addItem(name);
                 coaMap.put(name, code);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal load COA: " + e.getMessage());
+        }
+    }
+
+    private void loadCoaDataTujuan(JComboBox<String> combo) {
+        String sql = "SELECT code, nama FROM coa WHERE code LIKE '501-0%'";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String code = rs.getString("code");
+                String name = rs.getString("nama");
+                combo.addItem(name);
+                coaMapTujuan.put(name, code);
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Gagal load COA: " + e.getMessage());
@@ -191,8 +198,13 @@ public class FormBiaya extends JPanel {
     }
 
     private void simpanBiaya() {
-        String tanggal = txtTanggal.getText();
-        String ket = txtKeterangan.getText();
+        String tanggal = txtTanggal.getText().trim();
+        if (tanggal.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tanggal harus diisi!");
+            return;
+        }
+
+        String keterangan = txtKeterangan.getText();
 
         int totalSumber = sumberList.stream().mapToInt(SumberRow::getNominal).sum();
         int totalTujuan = tujuanList.stream().mapToInt(TujuanRow::getNominal).sum();
@@ -202,60 +214,68 @@ public class FormBiaya extends JPanel {
             return;
         }
 
-        try (Connection conn = Database.getConnection()) {
-            conn.setAutoCommit(false);
-
-            // Kurangi saldo sumber
-            for (SumberRow row : sumberList) {
-                String code = coaMap.get(row.getSumber());
-                try (PreparedStatement ps = conn.prepareStatement(
-                        "UPDATE coa SET ending = ending - ? WHERE code = ?")) {
-                    ps.setDouble(1, row.getNominal());
-                    ps.setString(2, code);
-                    ps.executeUpdate();
-                }
-            }
-
-            // Tambah saldo tujuan dan catat transaksi
-            for (TujuanRow row : tujuanList) {
-                String code = coaMap.get(row.getTujuan());
-                try (PreparedStatement ps = conn.prepareStatement(
-                        "UPDATE coa SET ending = ending + ? WHERE code = ?")) {
-                    ps.setDouble(1, row.getNominal());
-                    ps.setString(2, code);
-                    ps.executeUpdate();
-                }
-
-                try (PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO biaya (tanggal, sumber_code, tujuan_code, jumlah, keterangan) VALUES (?, ?, ?, ?, ?)")) {
-                    for (SumberRow s : sumberList) {
-                        ps.setString(1, tanggal);
-                        ps.setString(2, coaMap.get(s.getSumber()));
-                        ps.setString(3, code);
-                        ps.setDouble(4, row.getNominal());
-                        ps.setString(5, ket);
-                        ps.executeUpdate();
-                    }
-                }
-            }
-
-            conn.commit();
-            JOptionPane.showMessageDialog(this, "Data biaya berhasil disimpan!");
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal simpan biaya: " + e.getMessage());
+        if (sumberList.isEmpty() || tujuanList.isEmpty() || totalSumber == 0) {
+            JOptionPane.showMessageDialog(this, "Harap tambahkan setidaknya satu sumber dan satu tujuan dengan nominal!");
+            return;
         }
 
-        modelHistori.addRow(new Object[]{
-            tanggal, sumberList.size() + " sumber", tujuanList.size() + " tujuan", totalTujuan, ket
-        });
+        try {
+            CoaDAO coaDAO = new CoaDAO();
+            BiayaDAO biayaDAO = new BiayaDAO();
 
+            for (SumberRow sRow : sumberList) {
+                if (sRow.getNominal() <= 0) continue;
+
+                String sumberCode = coaMap.get(sRow.getSumber());
+                if (sumberCode == null) {
+                    throw new SQLException("Kode COA untuk sumber '" + sRow.getSumber() + "' tidak ditemukan!");
+                }
+
+                ModelCoa coaSumber = coaDAO.findByCode(sumberCode);
+                coaDAO.updateSaldo(coaSumber.getId(), "credit", -sRow.getNominal());
+            }
+
+            for (TujuanRow tRow : tujuanList) {
+                if (tRow.getNominal() <= 0) continue;
+
+                String tujuanCode = coaMapTujuan.get(tRow.getTujuan());
+                if (tujuanCode == null) {
+                    throw new SQLException("Kode COA untuk tujuan '" + tRow.getTujuan() + "' tidak ditemukan!");
+                }
+
+                ModelCoa coaTujuan = coaDAO.findByCode(tujuanCode);
+                coaDAO.updateSaldo(coaTujuan.getId(), "debit", tRow.getNominal());
+
+                for (SumberRow sRow : sumberList) {
+                    String sumberCode = coaMap.get(sRow.getSumber());
+
+                    ModelBiaya biaya = new ModelBiaya();
+                    biaya.setTanggal(tanggal);
+                    biaya.setSumberCode(sumberCode);
+                    biaya.setTujuanCode(tujuanCode);
+                    biaya.setJumlah(tRow.getNominal());
+                    biaya.setKeterangan(keterangan);
+
+                    biayaDAO.insert(biaya);
+                }
+            }
+
+            JOptionPane.showMessageDialog(this, "Data biaya berhasil disimpan!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal simpan biaya: " + e.getMessage());
+            return;
+        }
+
+        // Reset form
         sumberList.clear();
         tujuanList.clear();
         panelSumber.removeAll();
         panelTujuan.removeAll();
         panelSumber.revalidate();
+        panelSumber.repaint();
         panelTujuan.revalidate();
+        panelTujuan.repaint();
         updateTotalSumber();
         updateTotalTujuan();
     }
@@ -272,11 +292,11 @@ public class FormBiaya extends JPanel {
 
             cmbSumber = new JComboBox<>();
             parent.loadCoaData(cmbSumber);
-            cmbSumber.setPreferredSize(new Dimension(220, 28));
+            cmbSumber.setPreferredSize(new Dimension(220, 40));
             cmbSumber.setUI(new RComboBoxUI());
 
             txtNominal = new JTextField(8);
-            txtNominal.setPreferredSize(new Dimension(100, 28));
+            txtNominal.setPreferredSize(new Dimension(100, 40));
             txtNominal.setUI(new RTextFieldUI());
             txtNominal.addKeyListener(new KeyAdapter() {
                 public void keyReleased(KeyEvent e) { parent.updateTotalSumber(); }
@@ -284,7 +304,7 @@ public class FormBiaya extends JPanel {
 
             btnHapus = new JButton("Hapus");
             btnHapus.setUI(new RButtonUI());
-            btnHapus.setPreferredSize(new Dimension(84, 28));
+            btnHapus.setPreferredSize(new Dimension(84, 40));
             btnHapus.addActionListener(e -> {
                 parent.sumberList.remove(this);
                 Container c = getParent();
@@ -315,12 +335,12 @@ public class FormBiaya extends JPanel {
             setOpaque(false);
 
             cmbTujuan = new JComboBox<>();
-            parent.loadCoaData(cmbTujuan);
-            cmbTujuan.setPreferredSize(new Dimension(220, 28));
+            parent.loadCoaDataTujuan(cmbTujuan);
+            cmbTujuan.setPreferredSize(new Dimension(220, 40));
             cmbTujuan.setUI(new RComboBoxUI());
 
             txtNominal = new JTextField(8);
-            txtNominal.setPreferredSize(new Dimension(100, 28));
+            txtNominal.setPreferredSize(new Dimension(100, 40));
             txtNominal.setUI(new RTextFieldUI());
             txtNominal.addKeyListener(new KeyAdapter() {
                 public void keyReleased(KeyEvent e) { parent.updateTotalTujuan(); }
@@ -328,7 +348,7 @@ public class FormBiaya extends JPanel {
 
             btnHapus = new JButton("Hapus");
             btnHapus.setUI(new RButtonUI());
-            btnHapus.setPreferredSize(new Dimension(84, 28));
+            btnHapus.setPreferredSize(new Dimension(84, 40));
             btnHapus.addActionListener(e -> {
                 parent.tujuanList.remove(this);
                 Container c = getParent();

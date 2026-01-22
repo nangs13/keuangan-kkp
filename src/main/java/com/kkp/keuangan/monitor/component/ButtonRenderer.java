@@ -11,8 +11,8 @@ public class ButtonRenderer extends JButton implements TableCellRenderer {
     public ButtonRenderer() {
         setOpaque(true);
         setUI(new RButtonUI());
-        setBackground(new Color(0x0d6efd));
-        setBackground(new Color(0x0d6efd));
+        setBackground(new Color(0x007bff));
+        setForeground(Color.WHITE);
     }
 
     @Override

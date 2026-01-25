@@ -13,9 +13,12 @@ public class DialogPilihProduk extends JDialog {
     private DefaultTableModel model;
     private ModelProduk selectedProduk;
     private final ProdukDAO dao = new ProdukDAO();
+    private final boolean isPembelian;
+    private List<ModelProduk> produkList;
 
-    public DialogPilihProduk(Window owner) {
+    public DialogPilihProduk(Window owner, boolean isPembelian) {
         super(owner, "Pilih Produk", ModalityType.APPLICATION_MODAL);
+        this.isPembelian = isPembelian;
         setSize(500, 400);
         setLocationRelativeTo(owner);
         initComponents();
@@ -45,6 +48,17 @@ public class DialogPilihProduk extends JDialog {
         btnBatal.addActionListener(e -> dispose());
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        if (isPembelian) {
+            JButton btnTambah = new JButton("Tambah Produk");
+            btnTambah.addActionListener(e -> {
+                DialogTambahProduk dialog = new DialogTambahProduk(this);
+                dialog.setVisible(true);
+                if (!dialog.isCancelled()) {
+                    loadData();
+                }
+            });
+            bottom.add(btnTambah);
+        }
         bottom.add(btnBatal);
         bottom.add(btnPilih);
 
@@ -53,8 +67,8 @@ public class DialogPilihProduk extends JDialog {
 
     private void loadData() {
         model.setRowCount(0);
-        List<ModelProduk> list = dao.findAll();
-        for (ModelProduk p : list) {
+        produkList = dao.findAll();
+        for (ModelProduk p : produkList) {
             model.addRow(new Object[]{p.getId(), p.getNama(), p.getHarga()});
         }
     }
@@ -62,10 +76,7 @@ public class DialogPilihProduk extends JDialog {
     private void pilihProduk() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            selectedProduk = new ModelProduk();
-            selectedProduk.setId((int) model.getValueAt(row, 0));
-            selectedProduk.setNama((String) model.getValueAt(row, 1));
-            selectedProduk.setHarga((double) model.getValueAt(row, 2));
+            selectedProduk = produkList.get(row);
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Pilih produk terlebih dahulu!");

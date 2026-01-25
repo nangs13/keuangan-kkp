@@ -208,7 +208,7 @@ public class FormPenjualan extends JPanel {
     // -------------------------
     private void pilihProduk() {
         DialogPilihProduk dialog =
-            new DialogPilihProduk(SwingUtilities.getWindowAncestor(this));
+            new DialogPilihProduk(SwingUtilities.getWindowAncestor(this), false);
         dialog.setVisible(true);
 
         var produk = dialog.getSelectedProduk();
@@ -284,7 +284,7 @@ public class FormPenjualan extends JPanel {
         ModelPenjualan p = new ModelPenjualan();
         Date selectedDate = datePenjualan.getDate();
         if (selectedDate == null) {
-            JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pembelian!");
+            JOptionPane.showMessageDialog(this, "Silakan pilih tanggal penjualan!");
             return;
         }
         p.setCustomerId(s.getId());

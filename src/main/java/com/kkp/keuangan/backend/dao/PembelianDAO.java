@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,101 +13,56 @@ import com.kkp.keuangan.backend.model.ModelPembelian;
 import com.kkp.keuangan.backend.model.ModelPembelianDetail;
 
 public class PembelianDAO {
-
-    // insert header (returns generated id)
-    public int insert(ModelPembelian pembelian) throws SQLException {
-        String sql = "INSERT INTO pembelian (tanggal_pembelian, supplier_id, coa_id, remark) "
+    public int insert(ModelPembelian pembelian) {
+        String sqlPembelian = "INSERT INTO pembelian (tanggal_pembelian, supplier_id, coa_id, remark) "
                 + "VALUES (?,?,?,?)";
-
-        try (Connection conn = Database.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-
-            conn.setAutoCommit(false);
-
-            ps.setString(1, pembelian.getTanggalPembelian());
-            ps.setInt(2, pembelian.getSupplierId());
-            ps.setInt(3, pembelian.getCoaId());
-            ps.setString(4, pembelian.getRemark());
-
-            ps.executeUpdate();
-
-            ResultSet rs = ps.getGeneratedKeys();
-            int gen = -1;
-            if (rs.next()) {
-                gen = rs.getInt(1);
-            }
-
-            conn.commit();
-            return gen;
-
-        } catch (SQLException ex) {
-            throw ex;
-        }
-    }
-
-    // DELETE
-    public boolean delete(int id) throws SQLException {
-        if (id <= 0)
-            throw new SQLException("ID belum terisi!");
-
-        String sql = "DELETE FROM pembelian WHERE id=?";
-
-        try (Connection conn = Database.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            conn.setAutoCommit(false);
-
-            ps.setInt(1, id);
-            boolean deleted = ps.executeUpdate() > 0;
-
-            conn.commit();
-            return deleted;
-
-        } catch (SQLException ex) {
-            throw ex;
-        }
-    }
-
-    // insert
-    public int insert(ModelPembelianDetail pembelianDetail) throws SQLException {
-        String sql = "INSERT INTO pembelian_detail (pembelian_id, produk_id, qty, harga_satuan, total_harga)"
+        String sqlDetail = "INSERT INTO pembelian_detail (pembelian_id, produk_id, qty, harga_satuan, total_harga)"
                 + " VALUES (?,?,?,?,?)";
-        try (Connection conn = Database.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
+        try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
 
-            ps.setInt(1, pembelianDetail.getPembelianId());
-            ps.setString(2, pembelianDetail.getProdukId() + "");
-            ps.setDouble(3, pembelianDetail.getQty());
+            try (PreparedStatement psPembelian = conn.prepareStatement(sqlPembelian, Statement.RETURN_GENERATED_KEYS)) {
+                psPembelian.setString(1, pembelian.getTanggalPembelian());
+                psPembelian.setInt(2, pembelian.getSupplierId());
+                psPembelian.setInt(3, pembelian.getCoaId());
+                psPembelian.setString(4, pembelian.getRemark());
+                psPembelian.executeUpdate();
 
-            ps.setDouble(4, pembelianDetail.getHargaUnit());
-            ps.setDouble(5, pembelianDetail.getTotal());
-            ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            int gen = -1;
-            if (rs.next())
-                gen = rs.getInt(1);
-            return gen;
-        }
-    }
+                ResultSet rs = psPembelian.getGeneratedKeys();
+                int pembelianId = 0;
+                if (rs.next()) {
+                    pembelianId = rs.getInt(1);
+                }
 
-    public boolean delete(int id, ModelPembelian pembelian) throws SQLException {
-        if (id <= 0)
-            throw new SQLException("ID belum terisi!");
-        String sql = "DELETE FROM pembelian_detail WHERE id=?";
-        try (Connection conn = Database.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                try (PreparedStatement psDetail = conn.prepareStatement(sqlDetail)) {
+                    for (ModelPembelianDetail d : pembelian.getDetailList()) {
+                        psDetail.setInt(1, pembelianId);
+                        psDetail.setInt(2, d.getProdukId());
+                        psDetail.setDouble(3, d.getQty());
+                        psDetail.setDouble(4, d.getHargaUnit());
+                        psDetail.setDouble(5, d.getTotal());
+                        psDetail.addBatch();
+                    }
+                    psDetail.executeBatch();
+                }
 
-            conn.setAutoCommit(false);
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+                conn.commit();
+                return pembelianId;
+
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 
     public static List<ModelPembelianDetail> findByPembelianId(int pembelianId) throws SQLException {
         List<ModelPembelianDetail> list = new ArrayList<>();
-        String sql = "SELECT id, pembelian_id, nama_barang, qty, satuan, harga_unit, total "
+        String sql = "SELECT id, pembelian_id, produk_id, qty, harga_satuan, total_harga "
                 + "FROM pembelian_detail WHERE pembelian_id=?";
 
         try (Connection conn = Database.getConnection();
@@ -120,9 +76,9 @@ public class PembelianDAO {
                         rs.getInt("pembelian_id"),
                         rs.getInt("produk_id"),
                         rs.getDouble("qty"),
-                        rs.getString("satuan"),
-                        rs.getDouble("harga_unit"),
-                        rs.getDouble("total")));
+                        "",
+                        rs.getDouble("harga_satuan"),
+                        rs.getDouble("total_harga")));
             }
         }
         return list;
@@ -160,7 +116,7 @@ public class PembelianDAO {
      
     public ModelPembelian findById(int id) {
         String sqlPembelian = "SELECT p.id, p.tanggal_pembelian, (SELECT SUM(pd.total_harga) FROM pembelian_detail pd WHERE pd.pembelian_id = p.id) AS total_harga, p.supplier_id, p.coa_id FROM pembelian AS p WHERE p.id = ?";
-        String sqlDetail = "SELECT id, pembelian_id, nama_barang, qty, satuan, harga_unit, total FROM pembelian_detail WHERE pembelian_id=?";
+        String sqlDetail = "SELECT id, pembelian_id, produk_id, qty, harga_satuan, total_harga FROM pembelian_detail WHERE pembelian_id=?";
 
         try (Connection conn = Database.getConnection();
             PreparedStatement ps = conn.prepareStatement(sqlPembelian)) {
@@ -186,9 +142,11 @@ public class PembelianDAO {
                     while (rsDet.next()) {
                         ModelPembelianDetail d = new ModelPembelianDetail();
                         d.setId(rsDet.getInt("id"));
+                        d.setPembelianId(rsDet.getInt("pembelian_id"));
                         d.setProdukId(rsDet.getInt("produk_id"));
                         d.setQty(rsDet.getInt("qty"));
-                        d.setHargaUnit(rsDet.getDouble("harga_unit"));
+                        d.setHargaUnit(rsDet.getDouble("harga_satuan"));
+                        d.setTotal(rsDet.getDouble("total_harga"));
                         detailList.add(d);
                     }
 
@@ -294,9 +252,11 @@ public class PembelianDAO {
             while (rs.next()) {
                 ModelPembelianDetail d = new ModelPembelianDetail();
                 d.setId(rs.getInt("id"));
+                d.setPembelianId(rs.getInt("pembelian_id"));
                 d.setProdukId(rs.getInt("produk_id"));
                 d.setQty(rs.getInt("qty"));
-                d.setHargaUnit(rs.getDouble("harga_unit"));
+                d.setHargaUnit(rs.getDouble("harga_satuan"));
+                d.setTotal(rs.getDouble("total_harga"));
                 list.add(d);
             }
     

@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,9 +41,12 @@ import com.kkp.keuangan.backend.dao.SupplierDAO;
 import com.kkp.keuangan.backend.model.ModelCoa;
 import com.kkp.keuangan.backend.model.ModelPembelian;
 import com.kkp.keuangan.backend.model.ModelPembelianDetail;
+import com.kkp.keuangan.backend.model.ModelPenjualanDetail;
+import com.kkp.keuangan.backend.model.ModelProduk;
 import com.kkp.keuangan.backend.model.ModelSupplier;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RComboBoxUI;
+import com.kkp.keuangan.form.dialog.DialogPilihProduk;
 import com.kkp.keuangan.swing.ScrollBar;
 import com.toedter.calendar.JDateChooser;
 
@@ -61,6 +65,10 @@ public class FormPembelian extends JPanel {
     // ==== BUTTON ====
     private JButton btnTambahItem, btnHapusItem, btnSimpan, btnRefreshSupplier;
     private JLabel lblGrandTotal;
+
+    // ==== STATE ====
+    private boolean isUpdating = false;
+    private List<ModelProduk> produkList = new ArrayList<>();
 
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -141,15 +149,15 @@ public class FormPembelian extends JPanel {
         // 🧩 TABLE DETAIL
         // =========================================================
 
-        // buat model sebagai field (jangan buat lokal yang menutupi field)
         model = new DefaultTableModel(
-                new Object[] { "No", "Nama Barang", "Qty", "Satuan", "Harga/Unit", "Total", "Aksi" }, 0) {
+                new Object[] { "No", "Nama Barang", "Kategori", "Qty", "Harga/Unit", "Total", "Aksi" }, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
-                // hanya kolom Qty(2), Satuan(3), Harga(4), Aksi(6) yang editable
-                return c == 2 || c == 3 || c == 4 || c == 6;
+                // hanya kolom Qty(3), Harga(4), Aksi(6) yang editable
+                return c == 3 || c == 4 ||  c == 6;
             }
         };
+        model.addTableModelListener(e -> hitungTotal());
 
         // buat table dengan model
         table = new JTable(model);
@@ -158,10 +166,10 @@ public class FormPembelian extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(230, 230, 230));
         table.setSelectionBackground(new Color(200, 220, 255));
+        table.setSelectionForeground(new Color(0,0,0));
         table.setGridColor(new Color(240, 240, 240));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Jika ingin menyembunyikan kolom "No" (index 0) cek dulu jumlah kolom
         if (table.getColumnCount() > 0) {
             TableColumn col0 = table.getColumnModel().getColumn(0);
             col0.setMinWidth(0);
@@ -200,7 +208,7 @@ public class FormPembelian extends JPanel {
         btnSimpan = uiBtn("Simpan");
 
         btnRefreshSupplier.addActionListener(e -> loadSuppliers());
-        btnTambahItem.addActionListener(e -> addItem());
+        btnTambahItem.addActionListener(e -> pilihProduk());
         btnHapusItem.addActionListener(e -> removeItem());
         btnSimpan.addActionListener(e -> save());
 
@@ -262,21 +270,48 @@ public class FormPembelian extends JPanel {
         }
     }
 
-    private void addItem() {
-        AddItemDialog d = new AddItemDialog(SwingUtilities.getWindowAncestor(this));
-        d.setVisible(true);
-        if (!d.isCancelled()) {
-            model.addRow(new Object[] {
-                    model.getRowCount() + 1,
-                    d.getNamaBarang(),
-                    d.getQty(),
-                    d.getSatuan(),
-                    d.getHargaUnit(),
-                    d.getQty() * d.getHargaUnit(),
-                    "Hapus" // kolom aksi
+    private void pilihProduk() {
+        DialogPilihProduk dialog =
+            new DialogPilihProduk(SwingUtilities.getWindowAncestor(this), true);
+        dialog.setVisible(true);
+
+        var produk = dialog.getSelectedProduk();
+        produkList.add(produk);
+        if (produk != null) {
+            model.addRow(new Object[]{
+                model.getRowCount() + 1,
+                produk.getNama(),
+                produk.getKategori(),
+                1,
+                produk.getHarga(),
+                1 * produk.getHarga(),
+                "Hapus"
             });
-            calcTotal();
+            hitungTotal();
         }
+    }
+
+    private void hitungTotal() {
+        if (isUpdating) return;
+        isUpdating = true;
+
+        double total = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            try {
+                int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
+                double harga = Double.parseDouble(model.getValueAt(i, 4).toString());
+                produkList.get(i).setStok(qty);
+                produkList.get(i).setHarga(harga);
+                double subtotal = qty * harga;
+                model.setValueAt(subtotal, i, 5);
+                total += subtotal;
+            } catch (Exception e) {
+                // abaikan baris yang belum lengkap
+            }
+        }
+        lblGrandTotal.setText(String.format("%.2f", total));
+
+        isUpdating = false;
     }
 
     private void removeItem() {
@@ -287,8 +322,6 @@ public class FormPembelian extends JPanel {
             return;
         }
 
-        // Delegate to the indexed variant so the table-button editor can call the same
-        // logic
         removeItem(selectedRow);
     }
 
@@ -299,29 +332,11 @@ public class FormPembelian extends JPanel {
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            // Jika kamu ingin menghapus juga dari DB, panggil
-            // ModelPembelianDetail.deleteById(id)
-            // namun saat ini model tabel tidak menyimpan id DB di kolom -> kamu perlu
-            // menyimpan id detail di model jika ingin hapus DB.
+            produkList.remove(selectedRow);
             model.removeRow(selectedRow);
-            calcTotal();
+            hitungTotal();
             JOptionPane.showMessageDialog(this, "Item berhasil dihapus!");
         }
-    }
-
-    private void calcTotal() {
-        double sum = 0;
-        for (int i = 0; i < model.getRowCount(); i++) {
-            try {
-                double qty = Double.parseDouble(model.getValueAt(i, 2).toString());
-                double harga = Double.parseDouble(model.getValueAt(i, 4).toString());
-                double total = qty * harga;
-                model.setValueAt(total, i, 5);
-                sum += total;
-            } catch (Exception ignored) {
-            }
-        }
-        lblGrandTotal.setText(String.format("%.2f", sum));
     }
 
     private void save() {
@@ -330,51 +345,55 @@ public class FormPembelian extends JPanel {
             JOptionPane.showMessageDialog(this, "Pilih supplier terlebih dahulu!");
             return;
         }
-        if (model.getRowCount() == 0) {
+        if (produkList.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Belum ada item!");
             return;
         }
         try {
-            ModelPembelian p = new ModelPembelian();
             Date selectedDate = datePembelian.getDate();
             if (selectedDate == null) {
                 JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pembelian!");
                 return;
             }
-            p.setTanggalPembelian(df.format(selectedDate));
+            List<ModelPembelianDetail> details = new ArrayList<>();
 
+            for (int i = 0; i < produkList.size(); i++) {
+                ModelProduk produk = produkList.get(i);
+                int produkId = produk.getId();
+                double qty = produk.getStok();
+                double harga = produk.getHarga();
+                double total = qty * harga;
+
+                details.add(new ModelPembelianDetail(
+                    0,
+                    0,
+                    produkId,
+                    qty,
+                    "",
+                    harga,
+                    total));
+            }
+
+            ModelPembelian p = new ModelPembelian();
+            
+            p.setTanggalPembelian(df.format(selectedDate));
             p.setSupplierId(s.getId());
             p.setCoaId(((ModelCoa) cbCo.getSelectedItem()).getId());
             p.setTotal(Double.parseDouble(lblGrandTotal.getText()));
             p.setRemark(taRemark.getText());
+            p.setDetailList(details);
             PembelianDAO dao = new PembelianDAO();
+            
             int id = dao.insert(p);
-
-            for (int i = 0; i < model.getRowCount(); i++) {
-                String nama = model.getValueAt(i, 1).toString();
-                double qty = Double.parseDouble(model.getValueAt(i, 2).toString());
-                String satuan = model.getValueAt(i, 3).toString();
-                double harga = Double.parseDouble(model.getValueAt(i, 4).toString());
-                double total = qty * harga;
-
-                ModelPembelianDetail det = new ModelPembelianDetail(
-                        0,
-                        id,
-                        0,
-                        qty,
-                        satuan,
-                        harga,
-                        total);
-
-                det.insert();
+            if (id > 0) {
+                JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
+                generateHeaderDefaults();
+                model.setRowCount(0);
+                loadSuppliers();
+                hitungTotal();
+            } else {
+                throw new Exception("Failed to save data");
             }
-
-            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
-            generateHeaderDefaults();
-            model.setRowCount(0);
-            loadSuppliers();
-            calcTotal();
-
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Gagal menyimpan: " + e.getMessage());
         }
@@ -418,68 +437,6 @@ public class FormPembelian extends JPanel {
                 parent.removeItem(row);
             clicked = false;
             return "Hapus";
-        }
-    }
-
-    private static class AddItemDialog extends JDialog {
-        private boolean cancelled = true;
-        private JTextField tfNama, tfQty, tfSatuan, tfHarga;
-
-        public AddItemDialog(Window owner) {
-            super(owner, "Tambah Item", ModalityType.APPLICATION_MODAL);
-            setSize(360, 220);
-            setLocationRelativeTo(owner);
-            setLayout(new BorderLayout(10, 10));
-
-            JPanel p = new JPanel(new GridLayout(4, 2, 6, 6));
-            p.add(new JLabel("Nama Barang:"));
-            tfNama = new JTextField();
-            p.add(tfNama);
-            p.add(new JLabel("Qty:"));
-            tfQty = new JTextField("1");
-            p.add(tfQty);
-            p.add(new JLabel("Satuan:"));
-            tfSatuan = new JTextField("pcs");
-            p.add(tfSatuan);
-            p.add(new JLabel("Harga:"));
-            tfHarga = new JTextField("0");
-            p.add(tfHarga);
-            add(p, BorderLayout.CENTER);
-
-            JButton ok = new JButton("OK");
-            JButton cancel = new JButton("Batal");
-            ok.addActionListener(e -> {
-                if (!tfNama.getText().trim().isEmpty()) {
-                    cancelled = false;
-                    setVisible(false);
-                }
-            });
-            cancel.addActionListener(e -> setVisible(false));
-
-            JPanel bp = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            bp.add(ok);
-            bp.add(cancel);
-            add(bp, BorderLayout.SOUTH);
-        }
-
-        public boolean isCancelled() {
-            return cancelled;
-        }
-
-        public String getNamaBarang() {
-            return tfNama.getText().trim();
-        }
-
-        public double getQty() {
-            return Double.parseDouble(tfQty.getText().trim());
-        }
-
-        public String getSatuan() {
-            return tfSatuan.getText().trim();
-        }
-
-        public double getHargaUnit() {
-            return Double.parseDouble(tfHarga.getText().trim());
         }
     }
 }

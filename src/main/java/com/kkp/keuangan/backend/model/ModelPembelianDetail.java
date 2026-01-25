@@ -85,41 +85,4 @@ public class ModelPembelianDetail {
     public void setTotal(double total) {
         this.total = total;
     }
-    public static boolean deleteById(int id) {
-    String sql = "DELETE FROM pembelian_detail WHERE id = ?";
-    try (Connection conn = Database.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, id);
-        int affected = ps.executeUpdate();
-        return affected > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
-    }
-}
-
-
-    // insert
-    public int insert() throws SQLException {
-        String sql = "INSERT INTO pembelian_detail (pembelian_id, produk_id, qty, harga_satuan, total_harga)"
-                + " VALUES (?,?,?,?,?)";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-
-            conn.setAutoCommit(false);
-            ps.setInt(1, pembelianId);
-            ps.setInt(2, produkId);
-            ps.setDouble(3, qty);
-
-            ps.setDouble(4, hargaUnit);
-            ps.setDouble(5, total);
-            ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            int gen = -1;
-            if (rs.next())
-                gen = rs.getInt(1);
-            this.id = gen;
-            return gen;
-            }
-    }
 }

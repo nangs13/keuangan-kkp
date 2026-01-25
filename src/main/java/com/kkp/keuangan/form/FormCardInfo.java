@@ -139,6 +139,7 @@ public class FormCardInfo extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(230, 230, 230));
         table.setSelectionBackground(new Color(200, 220, 255));
+        table.setSelectionForeground(new Color(0,0,0));
         table.setGridColor(new Color(240, 240, 240));
 
         // hide ID column

@@ -24,7 +24,7 @@ import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
-import com.kkp.keuangan.laporan.laporanKas;
+import com.kkp.keuangan.laporan.LaporanKas;
 import com.kkp.keuangan.laporan.LaporanNeraca;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.monitor.MonitorMutasiKas;
@@ -64,7 +64,7 @@ public class Main extends javax.swing.JFrame {
     private MonitorBiaya monitorBiaya;
 
     // Report Page
-    private laporanKas laporanKas;
+    private LaporanKas laporanKas;
     private LaporanNeraca laporanNeraca;
     
     public Main() {
@@ -94,7 +94,7 @@ public class Main extends javax.swing.JFrame {
         monitorBiaya = new MonitorBiaya();
 
         // Report Page
-        laporanKas = new laporanKas();
+        laporanKas = new LaporanKas();
         laporanNeraca = new LaporanNeraca();
         
         menu.initMoving(Main.this);

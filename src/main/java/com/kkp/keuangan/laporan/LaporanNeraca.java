@@ -115,9 +115,9 @@ public class LaporanNeraca extends JPanel {
 
         try {
             CoaDAO coaDAO = new CoaDAO();
-            List<ModelCoa> aktivaList = coaDAO.findAllByCode("101%");
-            List<ModelCoa> kewajibanList = coaDAO.findAllByCode("201%");
-            List<ModelCoa> ekuitasList = coaDAO.findAllByCode("301%");
+            List<ModelCoa> aktivaList = coaDAO.findAllByCode("101%", periode);
+            List<ModelCoa> kewajibanList = coaDAO.findAllByCode("201%", periode);
+            List<ModelCoa> ekuitasList = coaDAO.findAllByCode("301%", periode);
 
             renderNeracaData(aktivaList, kewajibanList, ekuitasList);
 

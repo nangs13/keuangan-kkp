@@ -201,10 +201,20 @@ public class CoaDAO {
     }
 
     public ModelCoa findByCode(String code) {
+        return findByCode(code, null);
+    }
+
+    public ModelCoa findByCode(String code, String periode) {
         String sql = "SELECT * FROM coa WHERE code = ?";
+        if (periode != null && !periode.isEmpty()) {
+            sql = sql + " AND periode = ?";
+        }
         try (Connection conn = Database.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, code);
+            if (periode != null && !periode.isEmpty()) {
+                ps.setString(2, periode);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Integer parentId = null;
@@ -232,18 +242,34 @@ public class CoaDAO {
     }
 
     public static List<ModelCoa> findAllByCode(String code) {
+        return findAllByCode(code, null);
+    }
+
+    public static List<ModelCoa> findAllByCode(String code, String periode) {
         List<ModelCoa> list = new ArrayList<>();
-        String sql = "SELECT * FROM coa WHERE code LIKE ? ORDER BY id DESC";
-
+        StringBuilder sql = new StringBuilder("SELECT * FROM coa WHERE code LIKE ?");
+        
+        // Add periode condition if provided
+        if (periode != null && !periode.isEmpty()) {
+            sql.append(" AND periode = ?");
+        }
+        
+        sql.append(" ORDER BY id DESC");
+    
         try (Connection conn = Database.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+    
             ps.setString(1, code + "%");
-
+            
+            // Set periode parameter if provided
+            if (periode != null && !periode.isEmpty()) {
+                ps.setString(2, periode);
+            }
+    
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Integer parentId = rs.getObject("parent_id") != null ? rs.getInt("parent_id") : null;
-
+    
                     list.add(new ModelCoa(
                             rs.getInt("id"),
                             rs.getString("code"),
@@ -260,7 +286,7 @@ public class CoaDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
+    
         return list;
     }
 

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1d87fe75-3bfb-425d-8c92-7df2a7d753f5">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="periode" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT
+        SUM(CASE WHEN code LIKE '101%' THEN ending ELSE 0 END) AS aset,
+        SUM(CASE WHEN code LIKE '201%' THEN ending ELSE 0 END) AS kewajiban,
+        SUM(CASE WHEN code LIKE '301%' THEN ending ELSE 0 END) AS ekuitas
+    FROM coa
+    WHERE periode = $P{periode}]]>
+	</queryString>
+	<field name="aset" class="java.lang.Double"/>
+	<field name="kewajiban" class="java.lang.Double"/>
+	<field name="ekuitas" class="java.lang.Double"/>
+	<title>
+		<band height="80">
+			<staticText>
+				<reportElement x="0" y="10" width="555" height="25" uuid="0db21eef-b54e-4569-9f9d-789c3c696a1f"/>
+				<textElement textAlignment="Center">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Laporan Neraca]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="35" width="555" height="20" uuid="5fa84c5c-4b10-4e32-8bd0-76cab2ca2072"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Kedai Budhe]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="55" width="555" height="20" uuid="4e159966-ebbd-4c78-b71e-dcb28f8bce25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Periode : " + $P{periode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="220">
+			<staticText>
+				<reportElement x="20" y="10" width="200" height="20" uuid="c3a82234-22ba-4e17-b1d4-d0b4f0bf5118"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[ASSET]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="10" width="135" height="20" uuid="ec58afd8-df32-46d2-ab59-eb635cddcd0a"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{aset}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="35" width="515" height="1" uuid="5921464e-12ab-4ca5-9f91-92e293476f45"/>
+			</line>
+			<staticText>
+				<reportElement x="20" y="45" width="200" height="20" uuid="70aaec7b-b551-459a-aa69-62888c72f2b9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[KEWAJIBAN]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="45" width="135" height="20" uuid="d30eb544-a4ae-4ca4-b8b1-3e6118f2f45e"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{kewajiban}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="70" width="515" height="1" uuid="00ac0972-a43d-4215-a1da-40afc9c2543f"/>
+			</line>
+			<staticText>
+				<reportElement x="20" y="85" width="200" height="20" uuid="f808cdd3-d256-4601-8178-36ae6dab5bb2"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[EKUITAS]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="85" width="135" height="20" uuid="569b7b09-132d-48f8-a800-631f93d5a35c"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ekuitas}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="110" width="515" height="1" uuid="869ef913-9ffe-4699-8e35-01903a769a85"/>
+			</line>
+			<staticText>
+				<reportElement x="20" y="125" width="250" height="20" uuid="bb9a871b-bc45-4268-9aed-cfc8e5de41a9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL KEWAJIBAN DAN EKUITAS]]></text>
+			</staticText>
+			<textField pattern="Rp #,##0">
+				<reportElement x="400" y="125" width="135" height="20" uuid="04c9052f-ffc7-4641-bfc9-b4be9ef0aed0"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{kewajiban} + $F{ekuitas}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="20" y="150" width="515" height="1" uuid="869ef913-9ffe-4699-8e35-01903a769a85"/>
+			</line>
+			<staticText>
+				<reportElement x="370" y="180" width="150" height="20" uuid="e216331f-fb7c-4888-a931-85bee37afc27"/>
+				<textElement textAlignment="Center">
+					<font size="11"/>
+				</textElement>
+				<text><![CDATA[Manajemen]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

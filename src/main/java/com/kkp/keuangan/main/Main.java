@@ -25,6 +25,7 @@ import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
 import com.kkp.keuangan.laporan.laporanKas;
+import com.kkp.keuangan.laporan.LaporanNeraca;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.monitor.MonitorMutasiKas;
 import com.kkp.keuangan.monitor.MonitorBiaya;
@@ -64,6 +65,7 @@ public class Main extends javax.swing.JFrame {
 
     // Report Page
     private laporanKas laporanKas;
+    private LaporanNeraca laporanNeraca;
     
     public Main() {
         initComponents();
@@ -93,6 +95,7 @@ public class Main extends javax.swing.JFrame {
 
         // Report Page
         laporanKas = new laporanKas();
+        laporanNeraca = new LaporanNeraca();
         
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
@@ -133,7 +136,7 @@ public class Main extends javax.swing.JFrame {
                         setForm(laporanKas);
                         break;
                     case LAP_NERACA:
-                        setForm(form3);
+                        setForm(laporanNeraca);
                         break;
                     case LAP_LABA_RUGI:
                         setForm(formLaporanLabarugi);

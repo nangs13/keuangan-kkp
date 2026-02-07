@@ -9,17 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.kkp.keuangan.backend.Database;
+import com.kkp.keuangan.backend.model.ModelCoa;
 import com.kkp.keuangan.backend.model.ModelPenjualan;
 import com.kkp.keuangan.backend.model.ModelPenjualanDetail;
+import com.kkp.keuangan.backend.model.ModelProduk;
 
 public class PenjualanDAO {
 
     public int insert(ModelPenjualan penjualan) {
         String sqlPenjualan = "INSERT INTO penjualan (tanggal, total_harga, customer_id, coa_id) VALUES (?, ?, ?, ?)";
         String sqlDetail = "INSERT INTO penjualan_detail (penjualan_id, produk_id, qty, harga_satuan) VALUES (?, ?, ?, ?)";
+        String sqlUpdateProduk = "UPDATE produk SET stok = ? WHERE id = ?";
 
         try (Connection conn = Database.getConnection()) {
-            conn.setAutoCommit(false);
 
             try (PreparedStatement psPenjualan = conn.prepareStatement(sqlPenjualan, Statement.RETURN_GENERATED_KEYS)) {
                 psPenjualan.setString(1, penjualan.getTanggal());
@@ -34,6 +36,8 @@ public class PenjualanDAO {
                     penjualanId = rs.getInt(1);
                 }
 
+                Double totalValue = 0.0;
+
                 try (PreparedStatement psDetail = conn.prepareStatement(sqlDetail)) {
                     for (ModelPenjualanDetail d : penjualan.getDetailList()) {
                         psDetail.setInt(1, penjualanId);
@@ -41,15 +45,49 @@ public class PenjualanDAO {
                         psDetail.setInt(3, d.getQty());
                         psDetail.setDouble(4, d.getHargaSatuan());
                         psDetail.addBatch();
+
+                        ProdukDAO dao = new ProdukDAO();
+                        ModelProduk produk = dao.findById(d.getProdukId());
+                        Double oldPrice = produk.getHarga();
+                        int oldStok = produk.getStok();
+
+                        totalValue += oldPrice * d.getQty();
+                        int newStok = oldStok - (int) d.getQty();
+
+                        try (PreparedStatement psProduk = conn.prepareStatement(sqlUpdateProduk)) {
+                            psProduk.setDouble(1, newStok);
+                            psProduk.setInt(2, d.getProdukId());
+
+                            psProduk.execute();
+                        }
+
                     }
                     psDetail.executeBatch();
                 }
 
-                conn.commit();
+                // Update COA
+                CoaDAO daoCOA = new CoaDAO();
+                ModelCoa coaPersedian = daoCOA.findByCode("101-03001");
+                ModelCoa coaHPP = daoCOA.findByCode("401-03");
+                ModelCoa coaPenjualan = daoCOA.findByCode("401-01");
+                ModelCoa coaPiutang = daoCOA.findByCode("101-02");
+                ModelCoa coaKas = daoCOA.findById(penjualan.getCoaId());
+
+                // Jurnal Piutang - Penjualan
+                daoCOA.updateSaldo(coaPiutang.getId(), "debit", penjualan.getTotalHarga());
+                daoCOA.updateSaldo(coaPenjualan.getId(), "credit", penjualan.getTotalHarga());
+
+                // Jurnal Kas - Piutang
+                daoCOA.updateSaldo(coaKas.getId(), "debit", penjualan.getTotalHarga());
+                daoCOA.updateSaldo(coaPiutang.getId(), "credit", penjualan.getTotalHarga());
+
+                // Jurnal HPP - Persediaan
+                daoCOA.updateSaldo(coaHPP.getId(), "debit", totalValue);
+                daoCOA.updateSaldo(coaPersedian.getId(), "credit", totalValue);
+
                 return penjualanId;
 
             } catch (SQLException ex) {
-                conn.rollback();
                 throw ex;
             }
         } catch (SQLException e) {

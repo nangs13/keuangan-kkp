@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +12,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -30,6 +33,14 @@ import com.kkp.keuangan.backend.model.ModelCoa;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RComboBoxUI;
 import com.kkp.keuangan.component.uis.RPanelUI;
+
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 
 // ----- MODEL DATA (Simulasi database) -----
 public class LaporanKas extends JPanel {
@@ -122,7 +133,7 @@ public class LaporanKas extends JPanel {
         btnPrint.setUI(new RButtonUI());
         btnPrint.setBounds(400, 500, 100, 35);
         add(btnPrint);
-        // btnPrint.addActionListener(this::printLaporan);
+        btnPrint.addActionListener(this::printLaporan);
     }
 
     private void loadComboCoa() {
@@ -220,6 +231,58 @@ public class LaporanKas extends JPanel {
         // Update panel
         panelCard.revalidate();
         panelCard.repaint();
+    }
+
+    private void printLaporan(ActionEvent e) {
+        try {
+            String bulanDipilih = cbBulan.getSelectedItem().toString().substring(0, 2);
+            String tahunDipilih = cbTahun.getSelectedItem().toString();
+            String kasDipilih = cbKas.getSelectedItem().toString();
+            String periode = tahunDipilih + bulanDipilih;
+            String coaCode = kasDipilih.split(" - ")[0];
+    
+            CoaDAO coaDAO = new CoaDAO();
+            List<ModelCoa> allCoa = new ArrayList<>();
+            allCoa.addAll(coaDAO.findAllByCode(coaCode, periode));
+    
+            Map<String, Object> param = new HashMap<>();
+            param.put("periode", periode);
+    
+            String mainReportName = "LaporanKasDetail";
+            String mainJrxmlPath = "com/kkp/keuangan/laporan/" + mainReportName + ".jrxml";
+            String mainJasperPath = "com/kkp/keuangan/laporan/" + mainReportName + ".jasper";
+    
+            InputStream mainJasperStream = getClass().getClassLoader().getResourceAsStream(mainJasperPath);
+            JasperReport mainJasperReport;
+    
+            if (mainJasperStream != null) {
+                mainJasperReport = (JasperReport) JRLoader.loadObject(mainJasperStream);
+                mainJasperStream.close();
+                System.out.println("Menggunakan main .jasper yang sudah ada: " + mainJasperPath);
+            } else {
+                InputStream mainJrxmlStream = getClass().getClassLoader().getResourceAsStream(mainJrxmlPath);
+                if (mainJrxmlStream == null) {
+                    throw new RuntimeException("File main .jrxml tidak ditemukan: " + mainJrxmlPath);
+                }
+                mainJasperReport = JasperCompileManager.compileReport(mainJrxmlStream);
+                mainJrxmlStream.close();
+                System.out.println("Berhasil compile main .jrxml ke memory: " + mainJrxmlPath);
+            }
+
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(allCoa);
+
+            JasperPrint jp = JasperFillManager.fillReport(
+                    mainJasperReport,
+                    param,
+                    dataSource
+            );
+    
+            JasperViewer.viewReport(jp, false);
+    
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Gagal mencetak laporan: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {

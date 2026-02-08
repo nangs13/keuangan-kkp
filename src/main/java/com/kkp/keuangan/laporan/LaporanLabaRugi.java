@@ -249,8 +249,8 @@ public class LaporanLabaRugi extends JPanel {
     
             CoaDAO coaDAO = new CoaDAO();
             List<ModelCoa> allCoa = new ArrayList<>();
-            allCoa.addAll(coaDAO.findAllByCode("401%"));
-            allCoa.addAll(coaDAO.findAllByCode("501%"));
+            allCoa.addAll(coaDAO.findAllByCode("401%", periode));
+            allCoa.addAll(coaDAO.findAllByCode("501%", periode));
     
             Map<String, Object> param = new HashMap<>();
             param.put("periode", periode);

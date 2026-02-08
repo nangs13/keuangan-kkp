@@ -270,9 +270,9 @@ public class LaporanNeraca extends JPanel {
     
             CoaDAO coaDAO = new CoaDAO();
             List<ModelCoa> allCoa = new ArrayList<>();
-            allCoa.addAll(coaDAO.findAllByCode("101%"));
-            allCoa.addAll(coaDAO.findAllByCode("201%"));
-            allCoa.addAll(coaDAO.findAllByCode("301%"));
+            allCoa.addAll(coaDAO.findAllByCode("101%", periode));
+            allCoa.addAll(coaDAO.findAllByCode("201%", periode));
+            allCoa.addAll(coaDAO.findAllByCode("301%", periode));
     
             Map<String, Object> param = new HashMap<>();
             param.put("periode", periode);

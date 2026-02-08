@@ -232,7 +232,7 @@ public class FormBiaya extends JPanel {
                 }
 
                 ModelCoa coaSumber = coaDAO.findByCode(sumberCode);
-                coaDAO.updateSaldo(coaSumber.getId(), "credit", -sRow.getNominal());
+                coaDAO.updateSaldo(coaSumber.getId(), "credit", -sRow.getNominal(), tanggal, "Biaya");
             }
 
             for (TujuanRow tRow : tujuanList) {
@@ -244,7 +244,7 @@ public class FormBiaya extends JPanel {
                 }
 
                 ModelCoa coaTujuan = coaDAO.findByCode(tujuanCode);
-                coaDAO.updateSaldo(coaTujuan.getId(), "debit", tRow.getNominal());
+                coaDAO.updateSaldo(coaTujuan.getId(), "debit", tRow.getNominal(), tanggal, "Biaya");
 
                 for (SumberRow sRow : sumberList) {
                     String sumberCode = coaMap.get(sRow.getSumber());

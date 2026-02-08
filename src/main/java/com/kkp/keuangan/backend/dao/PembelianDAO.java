@@ -74,12 +74,12 @@ public class PembelianDAO {
                 ModelCoa coaKas = daoCOA.findById(pembelian.getCoaId());
 
                 // Jurnal Persedian - Hutang
-                daoCOA.updateSaldo(coaPersedian.getId(), "debit", totalValue);
-                daoCOA.updateSaldo(coaHutang.getId(), "credit", totalValue);
+                daoCOA.updateSaldo(coaPersedian.getId(), "debit", totalValue, pembelian.getTanggalPembelian(), "Pembelian - Persediaan");
+                daoCOA.updateSaldo(coaHutang.getId(), "credit", totalValue, pembelian.getTanggalPembelian(), "Pembelian - Persediaan");
 
                 // Jurnal Hutang - Kas
-                daoCOA.updateSaldo(coaHutang.getId(), "debit", totalValue);
-                daoCOA.updateSaldo(coaKas.getId(), "credit", totalValue);
+                daoCOA.updateSaldo(coaHutang.getId(), "debit", totalValue, pembelian.getTanggalPembelian(), "Pembelian - Pembayaran");
+                daoCOA.updateSaldo(coaKas.getId(), "credit", totalValue, pembelian.getTanggalPembelian(), "Pembelian - Pembayaran");
 
                 return pembelianId;
 

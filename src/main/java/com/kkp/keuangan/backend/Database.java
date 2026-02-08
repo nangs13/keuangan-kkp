@@ -146,6 +146,16 @@ public class Database {
                     "FOREIGN KEY (produk_id) REFERENCES produk(id)) ";
             stmt.execute(sql);
 
+            sql = "CREATE TABLE IF NOT EXISTS coa_log (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "coa_id INTEGER, " +
+                "tanggal DATE, " +
+                "tipe TEXT, " +
+                "nominal REAL, " +
+                "keterangan TEXT, " +
+                "FOREIGN KEY (coa_id) REFERENCES coa(id)) ";
+             stmt.execute(sql);
+
             // Data COA
             // -----------------
             // AKTIVA (101)

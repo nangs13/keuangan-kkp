@@ -74,16 +74,16 @@ public class PenjualanDAO {
                 ModelCoa coaKas = daoCOA.findById(penjualan.getCoaId());
 
                 // Jurnal Piutang - Penjualan
-                daoCOA.updateSaldo(coaPiutang.getId(), "debit", penjualan.getTotalHarga());
-                daoCOA.updateSaldo(coaPenjualan.getId(), "credit", penjualan.getTotalHarga());
+                daoCOA.updateSaldo(coaPiutang.getId(), "debit", penjualan.getTotalHarga(), penjualan.getTanggal(), "Penjualan - Piutang");
+                daoCOA.updateSaldo(coaPenjualan.getId(), "credit", penjualan.getTotalHarga(), penjualan.getTanggal(), "Penjualan - Piutang");
 
                 // Jurnal Kas - Piutang
-                daoCOA.updateSaldo(coaKas.getId(), "debit", penjualan.getTotalHarga());
-                daoCOA.updateSaldo(coaPiutang.getId(), "credit", penjualan.getTotalHarga());
+                daoCOA.updateSaldo(coaKas.getId(), "debit", penjualan.getTotalHarga(), penjualan.getTanggal(), "Penjualan - Pembayaran");
+                daoCOA.updateSaldo(coaPiutang.getId(), "credit", penjualan.getTotalHarga(), penjualan.getTanggal(), "Penjualan - Pembayaran");
 
                 // Jurnal HPP - Persediaan
-                daoCOA.updateSaldo(coaHPP.getId(), "debit", totalValue);
-                daoCOA.updateSaldo(coaPersedian.getId(), "credit", totalValue);
+                daoCOA.updateSaldo(coaHPP.getId(), "debit", totalValue, penjualan.getTanggal(), "Penjualan - HPP");
+                daoCOA.updateSaldo(coaPersedian.getId(), "credit", totalValue, penjualan.getTanggal(), "Penjualan - HPP");
 
                 return penjualanId;
 

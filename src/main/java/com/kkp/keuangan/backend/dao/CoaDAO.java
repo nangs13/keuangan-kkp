@@ -6,11 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.kkp.keuangan.backend.Database;
 import com.kkp.keuangan.backend.model.ModelCoa;
+import com.kkp.keuangan.backend.model.ModelCoaLog;
 
 public class CoaDAO {
 
@@ -330,8 +332,10 @@ public class CoaDAO {
      * @param coaId   id coa yang diupdate
      * @param jenis   salah satu "beginning", "debit", "credit"
      * @param nominal nilai yang ingin ditambahkan (bisa positif/negatif)
+     * @param tanggal nilai yang ingin ditambahkan (bisa positif/negatif)
+     * @param keterangan nilai yang ingin ditambahkan (bisa positif/negatif)
      */
-    public void updateSaldo(int coaId, String jenis, double nominal) {
+    public void updateSaldo(int coaId, String jenis, double nominal, String tanggal, String keterangan) {
         // Ambil record sekarang
         ModelCoa coa = findById(coaId);
         if (coa == null) {
@@ -384,5 +388,15 @@ public class CoaDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        // Add Coa Log
+        CoaLogDAO dao = new CoaLogDAO();
+        dao.insert(new ModelCoaLog(
+                coaId,
+                LocalDate.parse(tanggal),
+                k,
+                nominal,
+                keterangan
+        ));
     }
 }

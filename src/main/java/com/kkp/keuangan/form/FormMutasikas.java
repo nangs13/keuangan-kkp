@@ -298,7 +298,7 @@ public class FormMutasikas extends JPanel {
             MutasiKasDAO mutasiKasDAO = new MutasiKasDAO();
 
             ModelCoa coaSumber = coaDAO.findByCode(sumberCode);
-            coaDAO.updateSaldo(coaSumber.getId(), "credit", jumlahSumber);
+            coaDAO.updateSaldo(coaSumber.getId(), "credit", jumlahSumber, tanggal, "Mutasi Kas");
 
             for (TujuanRow row : tujuanList) {
                 if (row.getNominal() <= 0) continue;
@@ -312,7 +312,7 @@ public class FormMutasikas extends JPanel {
                 }
 
                 ModelCoa coaTujuan = coaDAO.findByCode(tujuanCode);
-                coaDAO.updateSaldo(coaTujuan.getId(), "debit", nominalTujuan);
+                coaDAO.updateSaldo(coaTujuan.getId(), "debit", nominalTujuan, tanggal, "Mutasi kas");
 
                 ModelMutasiKas mutasi = new ModelMutasiKas();
                 mutasi.setTanggal(tanggal);

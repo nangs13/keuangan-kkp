@@ -40,102 +40,118 @@
 		</band>
 	</title>
 	<detail>
-		<band height="150" splitType="Stretch">
+		<band height="0"/>
+	</detail>
+	<summary>
+		<band height="300" splitType="Stretch">
+			<!-- AKTIVA -->
 			<staticText>
 				<reportElement x="20" y="0" width="100" height="20" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7c"/>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
+				<textElement><font isBold="true"/></textElement>
 				<text><![CDATA[AKTIVA]]></text>
 			</staticText>
 			<textField pattern="Rp #,##0">
 				<reportElement x="400" y="0" width="135" height="20" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7d"/>
-				<textElement textAlignment="Right">
-					<font isBold="true"/>
-				</textElement>
+				<textElement textAlignment="Right"><font isBold="true"/></textElement>
 				<textFieldExpression><![CDATA[$V{totalAktiva}]]></textFieldExpression>
 			</textField>
 			<line>
 				<reportElement x="20" y="25" width="515" height="1" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7e"/>
 			</line>
 			<subreport>
-				<reportElement x="20" y="30" width="515" height="40" uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e"/>
+				<reportElement x="20" y="30" width="515" height="40" 
+							positionType="Float"
+							uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
-    ((java.util.List)$P{REPORT_DATA_SOURCE}.getData()).stream()
-    .filter({ coa -> ((com.kkp.keuangan.backend.model.ModelCoa)coa).getCode().startsWith("101") })
-    .collect(java.util.stream.Collectors.toList())
-)]]></dataSourceExpression>
+					((java.util.List)$P{REPORT_DATA_SOURCE}.getData()).stream()
+					.filter({coa -> ((com.kkp.keuangan.backend.model.ModelCoa)coa).getCode().startsWith("101")})
+					.collect(java.util.stream.Collectors.toList())
+				)]]></dataSourceExpression>
 				<subreportExpression><![CDATA["com/kkp/keuangan/laporan/NeracaCoaDetailSubreport.jasper"]]></subreportExpression>
 			</subreport>
 
+			<!-- KEWAJIBAN -->
 			<staticText>
-				<reportElement x="20" y="80" width="100" height="20" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7f"/>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
+				<reportElement x="20" y="90" width="100" height="20" 
+							positionType="Float"
+							uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7f"/>
+				<textElement><font isBold="true"/></textElement>
 				<text><![CDATA[KEWAJIBAN]]></text>
 			</staticText>
 			<textField pattern="Rp #,##0">
-				<reportElement x="400" y="80" width="135" height="20" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b80"/>
-				<textElement textAlignment="Right">
-					<font isBold="true"/>
-				</textElement>
+				<reportElement x="400" y="90" width="135" height="20" 
+							positionType="Float"
+							uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b80"/>
+				<textElement textAlignment="Right"><font isBold="true"/></textElement>
 				<textFieldExpression><![CDATA[$V{totalKewajiban}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="20" y="105" width="515" height="1" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b81"/>
+				<reportElement x="20" y="115" width="515" height="1" 
+							positionType="Float"
+							uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b81"/>
 			</line>
 			<subreport>
-				<reportElement x="20" y="110" width="515" height="40" uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6f"/>
+				<reportElement x="20" y="120" width="515" height="40" 
+							positionType="Float"
+							uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6f"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
-    ((java.util.List)$P{REPORT_DATA_SOURCE}.getData()).stream()
-    .filter({coa -> ((com.kkp.keuangan.backend.model.ModelCoa)coa).getCode().startsWith("201") })
-    .collect(java.util.stream.Collectors.toList())
-)]]></dataSourceExpression>
+					((java.util.List)$P{REPORT_DATA_SOURCE}.getData()).stream()
+					.filter({coa -> ((com.kkp.keuangan.backend.model.ModelCoa)coa).getCode().startsWith("201")})
+					.collect(java.util.stream.Collectors.toList())
+				)]]></dataSourceExpression>
 				<subreportExpression><![CDATA["com/kkp/keuangan/laporan/NeracaCoaDetailSubreport.jasper"]]></subreportExpression>
 			</subreport>
-		</band>
-	</detail>
-	<summary>
-		<band height="100" splitType="Stretch">
+
+			<!-- EKUITAS -->
 			<staticText>
-				<reportElement x="20" y="0" width="100" height="20" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b82"/>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
+				<reportElement x="20" y="180" width="100" height="20" 
+							positionType="Float"
+							uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b82"/>
+				<textElement><font isBold="true"/></textElement>
 				<text><![CDATA[EKUITAS]]></text>
 			</staticText>
 			<textField pattern="Rp #,##0">
-				<reportElement x="400" y="0" width="135" height="20" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b83"/>
-				<textElement textAlignment="Right">
-					<font isBold="true"/>
-				</textElement>
+				<reportElement x="400" y="180" width="135" height="20" 
+							positionType="Float"
+							uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b83"/>
+				<textElement textAlignment="Right"><font isBold="true"/></textElement>
 				<textFieldExpression><![CDATA[$V{totalEkuitas}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="20" y="25" width="515" height="1" uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b84"/>
+				<reportElement x="20" y="205" width="515" height="1" 
+							positionType="Float"
+							uuid="f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b84"/>
 			</line>
 			<subreport>
-				<reportElement x="20" y="30" width="515" height="40" uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c70"/>
+				<reportElement x="20" y="210" width="515" height="40" 
+							positionType="Float"
+							uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c70"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
-    ((java.util.List)$P{REPORT_DATA_SOURCE}.getData()).stream()
-    .filter({ coa -> ((com.kkp.keuangan.backend.model.ModelCoa)coa).getCode().startsWith("301") })
-    .collect(java.util.stream.Collectors.toList())
-)]]></dataSourceExpression>
+					((java.util.List)$P{REPORT_DATA_SOURCE}.getData()).stream()
+					.filter({coa -> ((com.kkp.keuangan.backend.model.ModelCoa)coa).getCode().startsWith("301")})
+					.collect(java.util.stream.Collectors.toList())
+				)]]></dataSourceExpression>
 				<subreportExpression><![CDATA["com/kkp/keuangan/laporan/NeracaCoaDetailSubreport.jasper"]]></subreportExpression>
 			</subreport>
+
+			<!-- TOTAL KEWAJIBAN DAN EKUITAS -->
+			<line>
+				<reportElement x="20" y="270" width="515" height="1" 
+							positionType="Float"
+							uuid="bb9a871b-bc45-4268-9aea-cfc8e5de41d9"/>
+			</line>
 			<staticText>
-				<reportElement x="20" y="80" width="250" height="20" uuid="bb9a871b-bc45-4268-9aed-cfc8e5de41a9"/>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
+				<reportElement x="20" y="275" width="250" height="20" 
+							positionType="Float"
+							uuid="bb9a871b-bc45-4268-9aed-cfc8e5de41a9"/>
+				<textElement><font isBold="true"/></textElement>
 				<text><![CDATA[TOTAL KEWAJIBAN DAN EKUITAS]]></text>
 			</staticText>
 			<textField pattern="Rp #,##0">
-				<reportElement x="400" y="80" width="135" height="20" uuid="04c9052f-ffc7-4641-bfc9-b4be9ef0aed0"/>
-				<textElement textAlignment="Right">
-					<font isBold="true"/>
-				</textElement>
+				<reportElement x="400" y="275" width="135" height="20" 
+							positionType="Float"
+							uuid="04c9052f-ffc7-4641-bfc9-b4be9ef0aed0"/>
+				<textElement textAlignment="Right"><font isBold="true"/></textElement>
 				<textFieldExpression><![CDATA[$V{totalKewajiban} + $V{totalEkuitas}]]></textFieldExpression>
 			</textField>
 		</band>

@@ -1,5 +1,7 @@
 package com.kkp.keuangan.laporan;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.InputStream;
@@ -9,12 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import com.kkp.keuangan.backend.dao.CoaDAO;
@@ -22,6 +26,7 @@ import com.kkp.keuangan.backend.model.ModelCoa;
 import com.kkp.keuangan.component.uis.RButtonUI;
 import com.kkp.keuangan.component.uis.RComboBoxUI;
 import com.kkp.keuangan.component.uis.RPanelUI;
+import com.kkp.keuangan.swing.ModernScrollBarUI;
 
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -92,10 +97,21 @@ public class LaporanNeraca extends JPanel {
 
         // ===== PANEL CARD LAPORAN =====
         panelCard = new JPanel(null);
-        panelCard.setBounds(150, 140, 600, 320);
         panelCard.setBackground(Color.WHITE);
         panelCard.setUI(new RPanelUI());
-        add(panelCard);
+        panelCard.setPreferredSize(new Dimension(580, 600)); // Width, Height - adjust as needed
+
+        JScrollPane scrollPane = new JScrollPane(panelCard);
+        scrollPane.setBounds(150, 140, 600, 320);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUI(new ModernScrollBarUI());
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(12, Integer.MAX_VALUE));
+
+        add(scrollPane);
 
         // ====== Isi laporan ======
 
@@ -230,10 +246,13 @@ public class LaporanNeraca extends JPanel {
         lblTotalEkuitasValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblTotalEkuitasValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
         panelCard.add(lblTotalEkuitasValue);
-        yOffset += labelHeight + 15;
-
 
         // Update panel
+        int totalHeight = 0;
+        for (Component comp : panelCard.getComponents()) {
+            totalHeight = Math.max(totalHeight, comp.getY() + comp.getHeight());
+        }
+        panelCard.setPreferredSize(new Dimension(580, totalHeight + 20));
         panelCard.revalidate();
         panelCard.repaint();
     }

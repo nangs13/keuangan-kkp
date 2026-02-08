@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -40,13 +39,13 @@ import net.sf.jasperreports.view.JasperViewer;
  *
  * @author User
  */
-public class LaporanNeraca extends JPanel {
+public class LaporanLabaRugi extends JPanel {
     private JComboBox<String> cbBulan;
     private JComboBox<String> cbTahun;
     private JButton btnTampilkan, btnPrint;
     private JPanel panelCard;
 
-    public LaporanNeraca() {
+    public LaporanLabaRugi() {
         setLayout(null);
         setBackground(new Color(245, 245, 245));
         setSize(900, 600);
@@ -54,7 +53,7 @@ public class LaporanNeraca extends JPanel {
     }
 
     private void initComponents() {
-        JLabel lblTitle = new JLabel("Laporan Neraca");
+        JLabel lblTitle = new JLabel("Laporan LabaRugi");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBounds(0, 20, 900, 50);
@@ -135,11 +134,10 @@ public class LaporanNeraca extends JPanel {
 
         try {
             CoaDAO coaDAO = new CoaDAO();
-            List<ModelCoa> aktivaList = coaDAO.findAllByCode("101%", periode);
-            List<ModelCoa> kewajibanList = coaDAO.findAllByCode("201%", periode);
-            List<ModelCoa> ekuitasList = coaDAO.findAllByCode("301%", periode);
+            List<ModelCoa> pendapatanList = coaDAO.findAllByCode("401%", periode);
+            List<ModelCoa> bebanList = coaDAO.findAllByCode("501%", periode);
 
-            renderNeracaData(aktivaList, kewajibanList, ekuitasList);
+            renderLabaRugiData(pendapatanList, bebanList);
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Gagal ambil data: " + ex.getMessage());
@@ -147,7 +145,7 @@ public class LaporanNeraca extends JPanel {
         }
     }
 
-    private void renderNeracaData(List<ModelCoa> aktivaList, List<ModelCoa> kewajibanList, List<ModelCoa> ekuitasList) {
+    private void renderLabaRugiData(List<ModelCoa> pendapatanList, List<ModelCoa> bebanList) {
         panelCard.removeAll(); // Clear existing components
         int yOffset = 20;
         int xOffset = 40;
@@ -155,15 +153,15 @@ public class LaporanNeraca extends JPanel {
         int valueXOffset = 420;
         int valueWidth = 150;
 
-        // Display Aktiva
-        JLabel lblAktivaTitle = new JLabel("AKTIVA");
-        lblAktivaTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblAktivaTitle.setBounds(xOffset, yOffset, 250, labelHeight);
-        panelCard.add(lblAktivaTitle);
+        // Display Pendapatan
+        JLabel lblPendapatanTitle = new JLabel("LABA KOTOR (PENDAPATAN)");
+        lblPendapatanTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblPendapatanTitle.setBounds(xOffset, yOffset, 250, labelHeight);
+        panelCard.add(lblPendapatanTitle);
         yOffset += labelHeight + 5;
 
-        double totalAktiva = 0;
-        for (ModelCoa coa : aktivaList) {
+        double totalPendapatan = 0;
+        for (ModelCoa coa : pendapatanList) {
             JLabel lblCoaName = new JLabel("   " + coa.getCode() + " - " + coa.getNama());
             lblCoaName.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             lblCoaName.setBounds(xOffset, yOffset, 300, labelHeight);
@@ -174,29 +172,29 @@ public class LaporanNeraca extends JPanel {
             lblCoaValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
             panelCard.add(lblCoaValue);
             yOffset += labelHeight;
-            totalAktiva += coa.getEnding();
+            totalPendapatan += coa.getEnding();
         }
-        JLabel lblTotalAktiva = new JLabel("Total Aktiva");
-        lblTotalAktiva.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTotalAktiva.setBounds(xOffset, yOffset, 300, labelHeight);
-        panelCard.add(lblTotalAktiva);
+        JLabel lblTotalPendapatan = new JLabel("Total Pendapatan");
+        lblTotalPendapatan.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTotalPendapatan.setBounds(xOffset, yOffset, 300, labelHeight);
+        panelCard.add(lblTotalPendapatan);
 
-        JLabel lblTotalAktivaValue = new JLabel(String.format("Rp. %,.0f", totalAktiva));
-        lblTotalAktivaValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTotalAktivaValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
-        panelCard.add(lblTotalAktivaValue);
+        JLabel lblTotalPendapatanValue = new JLabel(String.format("Rp. %,.0f", totalPendapatan));
+        lblTotalPendapatanValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTotalPendapatanValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
+        panelCard.add(lblTotalPendapatanValue);
         yOffset += labelHeight + 15;
 
 
-        // Display Kewajiban
-        JLabel lblKewajibanTitle = new JLabel("KEWAJIBAN");
-        lblKewajibanTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblKewajibanTitle.setBounds(xOffset, yOffset, 250, labelHeight);
-        panelCard.add(lblKewajibanTitle);
+        // Display Beban
+        JLabel lblBebanTitle = new JLabel("BEBAN BIAYA");
+        lblBebanTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblBebanTitle.setBounds(xOffset, yOffset, 250, labelHeight);
+        panelCard.add(lblBebanTitle);
         yOffset += labelHeight + 5;
 
-        double totalKewajiban = 0;
-        for (ModelCoa coa : kewajibanList) {
+        double totalBeban = 0;
+        for (ModelCoa coa : bebanList) {
             JLabel lblCoaName = new JLabel("   " + coa.getCode() + " - " + coa.getNama());
             lblCoaName.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             lblCoaName.setBounds(xOffset, yOffset, 300, labelHeight);
@@ -207,49 +205,30 @@ public class LaporanNeraca extends JPanel {
             lblCoaValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
             panelCard.add(lblCoaValue);
             yOffset += labelHeight;
-            totalKewajiban += coa.getEnding();
+            totalBeban += coa.getEnding();
         }
-        JLabel lblTotalKewajiban = new JLabel("Total Kewajiban");
-        lblTotalKewajiban.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTotalKewajiban.setBounds(xOffset, yOffset, 300, labelHeight);
-        panelCard.add(lblTotalKewajiban);
+        JLabel lblTotalBeban = new JLabel("Total Beban Biaya");
+        lblTotalBeban.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTotalBeban.setBounds(xOffset, yOffset, 300, labelHeight);
+        panelCard.add(lblTotalBeban);
 
-        JLabel lblTotalKewajibanValue = new JLabel(String.format("Rp. %,.0f", totalKewajiban));
-        lblTotalKewajibanValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTotalKewajibanValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
-        panelCard.add(lblTotalKewajibanValue);
+        JLabel lblTotalBebanValue = new JLabel(String.format("Rp. %,.0f", totalBeban));
+        lblTotalBebanValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTotalBebanValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
+        panelCard.add(lblTotalBebanValue);
         yOffset += labelHeight + 15;
 
-        // Display Ekuitas
-        JLabel lblEkuitasTitle = new JLabel("EKUITAS");
-        lblEkuitasTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblEkuitasTitle.setBounds(xOffset, yOffset, 250, labelHeight);
-        panelCard.add(lblEkuitasTitle);
-        yOffset += labelHeight + 5;
+        // Display Total Laba Rugi
+        double totalLaba = totalPendapatan - totalBeban;
+        JLabel lblTotalLaba = new JLabel("LABA BERSIH SEBELUM PAJAK");
+        lblTotalLaba.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTotalLaba.setBounds(xOffset, yOffset, 300, labelHeight);
+        panelCard.add(lblTotalLaba);
 
-        double totalEkuitas = 0;
-        for (ModelCoa coa : ekuitasList) {
-            JLabel lblCoaName = new JLabel("   " + coa.getCode() + " - " + coa.getNama());
-            lblCoaName.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            lblCoaName.setBounds(xOffset, yOffset, 300, labelHeight);
-            panelCard.add(lblCoaName);
-
-            JLabel lblCoaValue = new JLabel(String.format("Rp. %,.0f", coa.getEnding()));
-            lblCoaValue.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            lblCoaValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
-            panelCard.add(lblCoaValue);
-            yOffset += labelHeight;
-            totalEkuitas += coa.getEnding();
-        }
-        JLabel lblTotalEkuitas = new JLabel("Total Ekuitas");
-        lblTotalEkuitas.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTotalEkuitas.setBounds(xOffset, yOffset, 300, labelHeight);
-        panelCard.add(lblTotalEkuitas);
-
-        JLabel lblTotalEkuitasValue = new JLabel(String.format("Rp. %,.0f", totalEkuitas));
-        lblTotalEkuitasValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTotalEkuitasValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
-        panelCard.add(lblTotalEkuitasValue);
+        JLabel lblTotalLabaValue = new JLabel(String.format("Rp. %,.0f", totalLaba));
+        lblTotalLabaValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTotalLabaValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
+        panelCard.add(lblTotalLabaValue);
 
         // Update panel
         int totalHeight = 0;
@@ -270,14 +249,13 @@ public class LaporanNeraca extends JPanel {
     
             CoaDAO coaDAO = new CoaDAO();
             List<ModelCoa> allCoa = new ArrayList<>();
-            allCoa.addAll(coaDAO.findAllByCode("101%"));
-            allCoa.addAll(coaDAO.findAllByCode("201%"));
-            allCoa.addAll(coaDAO.findAllByCode("301%"));
+            allCoa.addAll(coaDAO.findAllByCode("401%"));
+            allCoa.addAll(coaDAO.findAllByCode("501%"));
     
             Map<String, Object> param = new HashMap<>();
             param.put("periode", periode);
     
-            String mainReportName = "LaporanNeracaDetail";
+            String mainReportName = "LaporanLabaRugiDetail";
             String mainJrxmlPath = "com/kkp/keuangan/laporan/" + mainReportName + ".jrxml";
             String mainJasperPath = "com/kkp/keuangan/laporan/" + mainReportName + ".jasper";
     
@@ -298,7 +276,7 @@ public class LaporanNeraca extends JPanel {
                 System.out.println("Berhasil compile main .jrxml ke memory: " + mainJrxmlPath);
             }
 
-            String subReportName = "NeracaCoaDetailSubreport";
+            String subReportName = "LabaRugiCoaDetailSubreport";
             String subJrxmlPath = "com/kkp/keuangan/laporan/" + subReportName + ".jrxml";
             String subJasperPath = "com/kkp/keuangan/laporan/" + subReportName + ".jasper";
     
@@ -319,7 +297,7 @@ public class LaporanNeraca extends JPanel {
                 System.out.println("Berhasil compile subreport .jrxml ke memory: " + subJrxmlPath);
             }
 
-            param.put("subreportNeracaCoaDetail", subJasperReport);
+            param.put("subreportLabaRugiCoaDetail", subJasperReport);
 
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(allCoa);
 
@@ -338,10 +316,10 @@ public class LaporanNeraca extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Laporan Neraca");
+        JFrame frame = new JFrame("Laporan LabaRugi");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
-        frame.add(new LaporanNeraca());
+        frame.add(new LaporanLabaRugi());
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }

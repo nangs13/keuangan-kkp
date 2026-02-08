@@ -32,14 +32,14 @@ import com.kkp.keuangan.component.uis.RComboBoxUI;
 import com.kkp.keuangan.component.uis.RPanelUI;
 
 // ----- MODEL DATA (Simulasi database) -----
-public class LaporanKas extends JPanel {
+public class LaporanArusKas extends JPanel {
     private JComboBox<String> cbBulan;
     private JComboBox<String> cbTahun;
     private JComboBox<String> cbKas;
     private JButton btnTampilkan, btnPrint;
     private JPanel panelCard;
 
-    public LaporanKas() {
+    public LaporanArusKas() {
         setLayout(null);
         setBackground(new Color(245, 245, 245));
         setSize(900, 600);
@@ -223,10 +223,10 @@ public class LaporanKas extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Laporan Kas");
+        JFrame frame = new JFrame("Laporan Arus Kas");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
-        frame.add(new LaporanKas());
+        frame.add(new LaporanArusKas());
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }

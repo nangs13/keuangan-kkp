@@ -24,8 +24,10 @@ import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
+import com.kkp.keuangan.laporan.LaporanArusKas;
 import com.kkp.keuangan.laporan.LaporanKas;
 import com.kkp.keuangan.laporan.LaporanNeraca;
+import com.kkp.keuangan.laporan.LaporanLabaRugi;
 import com.kkp.keuangan.model.Enum.MenuKey;
 import com.kkp.keuangan.monitor.MonitorMutasiKas;
 import com.kkp.keuangan.monitor.MonitorBiaya;
@@ -55,7 +57,6 @@ public class Main extends javax.swing.JFrame {
     private FormPembelian formPembelian;
     private FormMutasikas formMutasikas;
     private FormBiaya formBiaya;
-    private FormLaporanLabarugi formLaporanLabarugi;
 
     // Monitor Page
     private MonitorPenjualan monitorPenjualan;
@@ -65,7 +66,9 @@ public class Main extends javax.swing.JFrame {
 
     // Report Page
     private LaporanKas laporanKas;
+    private LaporanArusKas laporanArusKas;
     private LaporanNeraca laporanNeraca;
+    private LaporanLabaRugi laporanLabaRugi;
     
     public Main() {
         initComponents();
@@ -85,7 +88,6 @@ public class Main extends javax.swing.JFrame {
         formPembelian = new FormPembelian();
         formMutasikas = new FormMutasikas();
         formBiaya = new FormBiaya();
-        formLaporanLabarugi = new FormLaporanLabarugi();
 
         // Monitor Page
         monitorPenjualan = new MonitorPenjualan();
@@ -95,7 +97,9 @@ public class Main extends javax.swing.JFrame {
 
         // Report Page
         laporanKas = new LaporanKas();
+        laporanArusKas = new LaporanArusKas();
         laporanNeraca = new LaporanNeraca();
+        laporanLabaRugi = new LaporanLabaRugi();
         
         menu.initMoving(Main.this);
         menu.addEventMenuSelected(new EventMenuSelected() {
@@ -139,10 +143,10 @@ public class Main extends javax.swing.JFrame {
                         setForm(laporanNeraca);
                         break;
                     case LAP_LABA_RUGI:
-                        setForm(formLaporanLabarugi);
+                        setForm(laporanLabaRugi);
                         break;
                     case LAP_ARUS_KAS:
-                        setForm(form3);
+                        setForm(laporanArusKas);
                         break;
                     case MONITOR_PENJUALAN:
                         setForm(monitorPenjualan);

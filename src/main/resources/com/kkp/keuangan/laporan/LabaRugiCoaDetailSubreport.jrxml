@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="LabaRugiCoaDetailSubreport" language="groovy" pageWidth="515" pageHeight="20" columnWidth="515" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="2d87fe75-3bfb-425d-8c92-7df2a7d753f5">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="code" class="java.lang.String"/>
+	<field name="nama" class="java.lang.String"/>
+	<field name="ending" class="java.lang.Double"/>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="20" y="0" width="300" height="20" uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["   " + $F{code} + " - " + $F{nama}]]></textFieldExpression>
+			</textField>
+			<textField pattern="Rp #,##0">
+				<reportElement x="380" y="0" width="135" height="20" uuid="e1f2a3b4-c5d6-e7f8-a9a0-a1b2c3d4a5f6"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{ending}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

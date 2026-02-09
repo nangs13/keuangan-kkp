@@ -6,10 +6,12 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -229,6 +231,22 @@ public class LaporanLabaRugi extends JPanel {
         lblTotalLabaValue.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblTotalLabaValue.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
         panelCard.add(lblTotalLabaValue);
+        yOffset += labelHeight + 15;
+
+        // Footer - Signature section
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+        String currentDate = LocalDate.now().format(formatter);
+        
+        JLabel lblLocation = new JLabel("Jakarta, " + currentDate);
+        lblLocation.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblLocation.setBounds(valueXOffset, yOffset, valueWidth + 50, labelHeight);
+        panelCard.add(lblLocation);
+        yOffset += labelHeight + 60; // Space for signature
+
+        JLabel lblSignature = new JLabel("Supin");
+        lblSignature.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSignature.setBounds(valueXOffset, yOffset, valueWidth, labelHeight);
+        panelCard.add(lblSignature);
 
         // Update panel
         int totalHeight = 0;

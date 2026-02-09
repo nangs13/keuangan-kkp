@@ -119,6 +119,18 @@
 				<textElement textAlignment="Right"><font isBold="true"/></textElement>
 				<textFieldExpression><![CDATA[$V{totalPendapatan} - $V{totalBeban}]]></textFieldExpression>
 			</textField>
+
+			<!-- Signature -->
+            <textField pattern="dd MMMM yyyy">
+                <reportElement x="400" y="150" width="135" height="20" uuid="c9d0e1f2-a3b4-5c6d-7e8f-9a0b1c2d3e4f"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA["Jakarta, " + new java.text.SimpleDateFormat("dd MMMM yyyy", new java.util.Locale("id","ID")).format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="400" y="230" width="135" height="20" uuid="d0e1f2a3-b4c5-6d7e-8f9a-0b1c2d3e4f5a"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[Supin]]></text>
+            </staticText>
 		</band>
 	</summary>
 </jasperReport>

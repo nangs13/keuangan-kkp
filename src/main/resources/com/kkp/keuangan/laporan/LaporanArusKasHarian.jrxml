@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="LaporanArusKasHarian" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a6590b02-7639-4467-849c-85a0349007f3">
+    <property name="ireport.zoom" value="1.0"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+    <parameter name="periode" class="java.lang.String"/>
+    <field name="tanggal" class="java.time.LocalDate"/>
+    <field name="posisiAwal" class="java.lang.Double"/>
+    <field name="pemasukan" class="java.lang.Double"/>
+    <field name="pengeluaran" class="java.lang.Double"/>
+    <field name="posisiAkhir" class="java.lang.Double"/>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <title>
+        <band height="79" splitType="Stretch">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="35" uuid="e0501f2f-1a5c-4394-bb9b-b93d39c09346"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="24" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Laporan Arus Kas Harian]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="35" width="555" height="20" uuid="74438317-0e62-4217-a065-276e0ef59533"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="12"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Periode: " + $P{periode}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+    <pageHeader>
+        <band height="1" splitType="Stretch"/>
+    </pageHeader>
+    <columnHeader>
+        <band height="20" splitType="Stretch">
+            <staticText>
+                <reportElement x="0" y="0" width="111" height="20" uuid="e24f4693-570a-4a25-8c08-a55138a2e1d7"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Tanggal]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="111" y="0" width="111" height="20" uuid="b24b8d78-6872-46a4-9e79-88a911a37c44"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Posisi Awal]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="222" y="0" width="111" height="20" uuid="d28e7520-2216-43b9-b883-937107f0f66e"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Pemasukan]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="333" y="0" width="111" height="20" uuid="559d8738-9226-455b-9d41-e945c58ee827"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Pengeluaran]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="444" y="0" width="111" height="20" uuid="625b15b5-7798-467a-85b4-93e1e9cfdf93"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Posisi Akhir]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="20" splitType="Stretch">
+            <textField pattern="dd-MM-yyyy">
+                <reportElement x="0" y="0" width="111" height="20" uuid="19728613-2d17-4f6c-829d-472d7331908d"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{tanggal}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="111" y="0" width="111" height="20" uuid="3d2b271f-50d4-4f0e-b7d1-e8d356c9a385"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA["Rp. " + new java.text.DecimalFormat("#,##0").format($F{posisiAwal})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="222" y="0" width="111" height="20" uuid="0e8e454f-12d4-4e20-998f-011d8c1c4918"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA["Rp. " + new java.text.DecimalFormat("#,##0").format($F{pemasukan})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="333" y="0" width="111" height="20" uuid="37000d11-54c7-4325-83f1-d007c6f09312"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA["Rp. " + new java.text.DecimalFormat("#,##0").format($F{pengeluaran})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="444" y="0" width="111" height="20" uuid="0733a1e9-4e42-494b-9e48-9c60e4827c1f"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                    <topPen lineWidth="0.5"/>
+                    <leftPen lineWidth="0.5"/>
+                    <bottomPen lineWidth="0.5"/>
+                    <rightPen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA["Rp. " + new java.text.DecimalFormat("#,##0").format($F{posisiAkhir})]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    <columnFooter>
+        <band height="1" splitType="Stretch"/>
+    </columnFooter>
+    <pageFooter>
+        <band height="120" splitType="Stretch">
+            <!-- Page number dan tanggal cetak (existing) -->
+            <textField>
+                <reportElement x="435" y="0" width="80" height="20" uuid="e0b74103-60a6-455b-9721-a3f81e330a50"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="515" y="0" width="40" height="20" uuid="79469e71-97b7-48f8-b397-6a5893d56f17"/>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <textField pattern="dd/MM/yyyy h.mm a">
+                <reportElement x="0" y="0" width="100" height="20" uuid="921356f1-a1e1-4519-813c-0e70a3161c9b"/>
+                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+            
+            <!-- Signature section -->
+            <textField>
+                <reportElement x="400" y="40" width="155" height="20" uuid="921356f1-a1e1-4519-813c-0e70a2361c9b"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA["Jakarta, " + new java.text.SimpleDateFormat("dd MMMM yyyy", new java.util.Locale("id","ID")).format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+            
+            <staticText>
+                <reportElement x="400" y="100" width="155" height="20" uuid="921356f1-a1e1-4519-813c-0f70a3161c2c"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[Supin]]></text>
+            </staticText>
+        </band>
+    </pageFooter>
+    <summary>
+        <band height="1" splitType="Stretch"/>
+    </summary>
+</jasperReport>

@@ -24,6 +24,7 @@ import com.kkp.keuangan.form.Form_1;
 import com.kkp.keuangan.form.Form_2;
 import com.kkp.keuangan.form.Form_3;
 import com.kkp.keuangan.form.Form_Home;
+import com.kkp.keuangan.form.HomePage;
 import com.kkp.keuangan.laporan.LaporanArusKas;
 import com.kkp.keuangan.laporan.LaporanKas;
 import com.kkp.keuangan.laporan.LaporanNeraca;
@@ -46,6 +47,7 @@ public class Main extends javax.swing.JFrame {
     private Form_1 form1;
     private Form_2 form2;
     private Form_3 form3;
+    private HomePage homepage;
 
     // Form Page
     private FormProduk formProduk;
@@ -74,9 +76,7 @@ public class Main extends javax.swing.JFrame {
         initComponents();
         setBackground(new Color(0, 0, 0, 0));
         home = new Form_Home();
-        form1 = new Form_1();
-        form2 = new Form_2();
-        form3 = new Form_3();
+        homepage = new HomePage();
 
         // Form Page
         formProduk = new FormProduk();
@@ -107,7 +107,7 @@ public class Main extends javax.swing.JFrame {
             public void selected(MenuKey key) {
                 switch (key) {
                     case DASHBOARD:
-                        setForm(home);
+                        setForm(homepage);
                         break;
                     case COA:
                         setForm(formCoa);
@@ -167,7 +167,7 @@ public class Main extends javax.swing.JFrame {
             }
         });        
         // set when system open start with home form
-        setForm(new Form_Home());
+        setForm(new HomePage());
     }
 
     private void setForm(JComponent com) {

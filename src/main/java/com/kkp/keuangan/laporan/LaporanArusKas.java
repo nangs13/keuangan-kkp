@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -199,9 +200,8 @@ public class LaporanArusKas extends JPanel {
 
     private void printLaporan(ActionEvent e) {
         try {
-            // Load the JRXML file
-            String reportPath = "src/main/resources/com/kkp/keuangan/laporan/LaporanArusKasHarian.jrxml";
-            JasperReport jasperReport = JasperCompileManager.compileReport(reportPath);
+            InputStream reportStream = getClass().getResourceAsStream("/com/kkp/keuangan/laporan/LaporanArusKasHarian.jrxml");
+            JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
 
             // Prepare report parameters
             Map<String, Object> parameters = new java.util.HashMap<>();
